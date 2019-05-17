@@ -1,28 +1,28 @@
 <template>
-  <div class="main-box">
+<div class="main-box">
     <div class="right-box">
-      <div class="content-box">
-        <p class="title">Login</p>
-        <p class="title-des">Beyond blockchain,</p>
-        <p class="title-des">open the gate to the decentralized future</p>
-        <label for="username" class="form-input mar-btm-20 mar-top-45">
+        <div class="content-box">
+            <p class="title">Login</p>
+            <p class="title-des">Beyond blockchain</p>
+            <p class="title-des">open the gate to the decentralized future</p>
+            <label for="username" class="form-input mar-btm-20 mar-top-45">
           <input type="text" value="1@qq.com" id="username" :class="usernameInputClass" v-on:blur="testUsername()" v-on:input="usernameChange" v-model="username">
           <span class="label" id="username-wrap" :class="usernameActive">Email</span>
         </label>
-        <label for="password" class="form-input">
+            <label for="password" class="form-input">
           <input type="password" value="A123456789" id="password" v-on:input="passwordChange" v-model="password">
           <span class="label" id="password-wrap" :class="passwordActive">Password</span>
         </label>
-        <div class="login-btn" id="submit-btn" :class="clickSubmitClass" v-on:click="sbumitForm()">
-          <span class="loading"></span>Log in
+            <div class="login-btn" id="submit-btn" :class="clickSubmitClass" v-on:click="submitForm()">
+                <span class="loading"></span>Log in
+            </div>
         </div>
-      </div>
     </div>
-    <div class="alert-box box-hide">
-      <div class="alert-status"></div>
-      <div class="alert-text">告知当前状态，信息和解决方法，最多不超过2行内容告知当前状态，信息和解决方法，最多不超过2行内容</div>
+    <div class="alert-box" v-if="isShowToast">
+        <div class="alert-status"></div>
+        <div class="alert-text">{{ toastText }}</div>
     </div>
-  </div>
+</div>
 </template>
 
 <script>
@@ -74,7 +74,8 @@ export default {
         this.passwordActive = "";
       }
     },
-    sbumitForm() {
+
+    submitForm() {
       console.log("即将登录.....");
       if (this.isShowLoading == true) {
         console.log("正在提交.......");
@@ -85,7 +86,6 @@ export default {
       setTimeout(() => {
         this.clickSubmitClass = "";
       }, 100);
-      var self = this;
       //提交数据
       let username = this.username,
         password = this.password;
@@ -94,7 +94,7 @@ export default {
 
       //开始获取盒子
       let unameHash = md5(username);
-      common
+      return common
         .discovery(unameHash)
         .then(device => {
           console.log("搜索到盒子：" + JSON.stringify(device));
@@ -117,6 +117,7 @@ export default {
                 console.log("登录成功.....，开始获取用户信息.......");
 
                 if (res.err_no == 0) {
+                  this.clickSubmitClass = "hide-load";
                   //登录成功，获取用户信息
                   return common
                     .post("/ubeybox/user/get_userinfo", {})
@@ -130,6 +131,7 @@ export default {
 
                       if (res.err_no == 0) {
                         console.log("获取用户信息成功.....", res.data);
+                        //登录完毕，通知mainWindow跳转
                         ipcRenderer.send("login-finished");
                       }
                     });
@@ -157,5 +159,6 @@ export default {
   }
 };
 </script>
+
 <style>
 </style>

@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import LoginPage from '../components/LoginPage'
+import ListPage from '../components/ListPage'
 
 Vue.use(Router)
 
@@ -8,12 +10,12 @@ export default new Router({
 		{
 			path: '/',
 			name: 'login',
-			component: require('@/components/LoginPage').default
+			component: LoginPage
 		},
 		{
 			path: '/list',
 			name: 'list',
-			component: require('@/components/ListPage').default
+			component: ListPage
 		},
 		{
 			path: '*',

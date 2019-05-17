@@ -1,11 +1,14 @@
 const https = require('https');
 const http = require('http');
+import axios from 'axios'
 const querystring = require("querystring");
 var env = "test";
 import Common from '../../Common';
 import { ipcRenderer } from 'electron';
 var upnp = require('node-upnp-utils');
+import store from '../store';
 
+var upnp = require('node-upnp-utils');
 var common = {
 	env: "test",
 	box: null,
@@ -112,13 +115,17 @@ var common = {
 		})
 	},
 	createToast(err_msg) {
-		let alertBox = document.getElementsByClassName("alert-box");
-		let alertText = document.getElementsByClassName("alert-text");
-		alertBox[0].classList.remove('box-hide');
-		alertText[0].innerHTML = err_msg;
+		store.commit('updateToastStatus', {
+			isShowToast: true,
+			toastText: err_msg
+		})
 		setTimeout(() => {
-			alertBox[0].classList.add('box-hide');
+			store.commit('updateToastStatus', {
+				isShowToast: false,
+				toastText: err_msg
+			})
 		}, 4000)
+
 	},
 	// eventDelegate(root, eventName, selector, callback) {
 	// 	root.addEventListener(eventName, function (e) {

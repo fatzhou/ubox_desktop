@@ -1,5 +1,7 @@
 const state = {
-  main: 0
+  main: 0,
+  isShowToast: false,
+	toastText: '',
 }
 
 const mutations = {
@@ -8,6 +10,10 @@ const mutations = {
   },
   INCREMENT_MAIN_COUNTER (state) {
     state.main++
+  },
+  updateToastStatus(state,obj) {
+    state.isShowToast = obj.isShowToast
+    state.toastText = obj.toastText
   }
 }
 

@@ -62,9 +62,9 @@
         </div>
       </div>
     </div>
-    <div class="alert-box box-hide">
+    <div class="alert-box" v-if="isShowToast">
 		<div class="alert-status"></div>
-		<div class="alert-text">{{ toastStr }}</div>
+		<div class="alert-text">{{ toastText }}</div>
     </div>
   </div>
 </template>
@@ -89,10 +89,20 @@ export default {
       fileList: []
     };
   },
+  computed: {
+      isShowToast() {
+          console.log(this)
+          return this.$store.state.Counter.isShowToast
+      },
+      toastText() {
+          return this.$store.state.Counter.toastText
+      }
+  },
   mounted() {
     this.initGlobalInfo();
     this.initSamba();
   },
+
   methods: {
     initGlobalInfo() {
       this.box = ipcRenderer.sendSync("get-global", "box");

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="app">
     <router-view></router-view>
   </div>
 </template>
@@ -13,7 +13,8 @@ export default {
 <style lang="less">
 /* CSS */
 @import "./assets/css/common.css";
-#app {
+.app {
+  width: 100%;
   height: 100%;
 }
 </style>
