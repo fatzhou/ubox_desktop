@@ -17,7 +17,7 @@
     <div class="body-box">
       <div class="left-box">
         <ul>
-          <li class="active" v-for="disk in disks" :key="disk.label">
+          <li v-on:click="changeDisk(disk)" :class="disk.isSelect ? 'active' : ''" v-for="disk in disks" :key="disk.label">
             <div class="img-div"></div>
             <div class="diskinfo-div">
               <p class="disk-name">{{ disk.label }}</p>
@@ -54,7 +54,7 @@
           <ul >
 			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name">  
 				<div class="fl file-checkbox"></div>
-				<div class="fl file-name ">{{ file.name }}<span class="download-icon"></span></div>
+				<div class="fl file-name "  :class="file.type">{{ file.name }}<span class="download-icon"></span></div>
 				<div class="fl file-size">{{ file.size }}</div>
 				<div class="fl file-time">{{ file.time }}</div>                      
 			</li>
@@ -172,11 +172,16 @@ export default {
                     : "Disk " +
                       String.fromCharCode("A".charCodeAt(0) + diskCount++);
                 disks.push({
+                  isSelect: false,
                   name: item.Filename,
                   label: label,
                   size: this.computeGB(disk && disk.size),
                   used: this.computeGB(disk && disk.used)
                 });
+                if(disks[0]) {
+                  disks[0].isSelect = true;
+                }
+                
               });
               this.disks = disks;
             }
@@ -285,7 +290,15 @@ export default {
       }
       return [Y, M, D].join(split) + hours;
     },
-    logout() {}
+    logout() {},
+    changeDisk(disk) {
+      this.disks.filter(item => {
+        item.isSelect = false;
+      })
+      disk.isSelect = true;
+      this.renderFileList(disk.name);
+
+    }
   }
 };
 </script>

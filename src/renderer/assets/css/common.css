@@ -472,7 +472,7 @@ a {
 	border-bottom: 0.5px solid #302F34;
 	position: relative;
 	padding: 17px 0;
-	color: rgb(255, 255, 255, 0.5);
+	color: rgba(255, 255, 255, 0.5);
 }
 
 .body-box .left-box ul li.active {

@@ -46,6 +46,15 @@ export default {
       clickSubmitClass: "hide-load"
     };
   },
+    computed: {
+      isShowToast() {
+          console.log(this)
+          return this.$store.state.Counter.isShowToast
+      },
+      toastText() {
+          return this.$store.state.Counter.toastText
+      }
+  },
   methods: {
     usernameChange() {
       if (this.username.length > 0) {
