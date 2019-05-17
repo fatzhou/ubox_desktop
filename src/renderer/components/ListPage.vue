@@ -91,8 +91,8 @@ export default {
       userInfo: {},
       loginInfo: {},
       smb2Client: {},
-	  toastStr: "",
-      fileList: [],
+      toastStr: "",
+      fileList: []
     };
   },
   mounted() {
@@ -109,53 +109,52 @@ export default {
     initSamba() {
       let location = this.box.URLBase;
       var boxIp = location.split(":")[0];
-	  common.http('/ubeybox/service/pc_getsambaconf', {})
-	  .then(res => {
-		  if(res.err_no == 0) {
-			this.smb2Client = new SMB2({
-				share: "\\\\" + boxIp + "\\" + res.tag,
-				domain: res.tag,
-				username: res.samba_uname,
-				password: res.samba_pwd
-				// username: this.loginInfo.username,
-				// password: this.loginInfo.password,
-			});
-			this.renderFileList("");
-		  }
-	  })
+      common.http("/ubeybox/service/pc_getsambaconf", {}).then(res => {
+        if (res.err_no == 0) {
+          this.smb2Client = new SMB2({
+            share: "\\\\" + boxIp + "\\" + res.tag,
+            domain: res.tag,
+            username: res.samba_uname,
+            password: res.samba_pwd
+            // username: this.loginInfo.username,
+            // password: this.loginInfo.password,
+          });
+          this.renderFileList("");
+        }
+      });
     },
     renderFileList(folder) {
       let self = this;
       this.smb2Client.readdir("", function(err, content) {
         if (err) throw err;
-		console.log(content);
-		window.content = content; //For debug
+        console.log(content);
+        window.content = content; //For debug
 
-		let fileList = [];
-		content.forEach(item => {
+        let fileList = [];
+        content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
             return;
-		  }	
-		 var lastWriteTime = self.transferDate(
+          }
+          var lastWriteTime = self.transferDate(
             FileTime.toDate({
               low: low,
               high: high
             })
-		  );
-		  var type =
-			item.FileAttributes == 128
-              ? "type-folder"
-			  : self.getFileType(content[i].Filename);
-			  
-			fileList.push({
-				name: item.Filename,
-				type: type,
-				size: 0,
-				time: lastWriteTime
-			})
-		})
+          );
+          var type;
+          item.FileAttributes == 128
+            ? "type-folder"
+            : self.getFileType(content[i].Filename);
 
-		this.fileList = fileList;
+          fileList.push({
+            name: item.Filename,
+            type: type,
+            size: 0,
+            time: lastWriteTime
+          });
+        });
+
+        this.fileList = fileList;
       });
     },
     getFileType(name) {
