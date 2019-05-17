@@ -117,34 +117,34 @@ var common = {
 			alertBox[0].classList.add('box-hide');
 		}, 4000)
 	},
-	eventDelegate(root, eventName, selector, callback) {
-		root.addEventListener(eventName, function (e) {
-			console.log("34567")
-			var l = e.target;
-			if (selector.indexOf('.') < 0) {
-				while (l.tagName.toLowerCase() !== selector) {
-					l = l.parentNode
-					if (l === root) {
-						l = null
-						break;
-					}
-				}
-			} else {
-				let className = selector.replace('.', '');
-				while (l.classList.contains(className)) {
-					l = l.parentNode
-					if (l === root) {
-						l = null
-						break;
-					}
-				}
-			}
-			if (l) {
-				console.log('子元素命中！');
-				callback(e, l);
-			}
-		})
-	}
+	// eventDelegate(root, eventName, selector, callback) {
+	// 	root.addEventListener(eventName, function (e) {
+	// 		console.log("34567")
+	// 		var l = e.target;
+	// 		if (selector.indexOf('.') < 0) {
+	// 			while (l.tagName.toLowerCase() !== selector) {
+	// 				l = l.parentNode
+	// 				if (l === root) {
+	// 					l = null
+	// 					break;
+	// 				}
+	// 			}
+	// 		} else {
+	// 			let className = selector.replace('.', '');
+	// 			while (l.classList.contains(className)) {
+	// 				l = l.parentNode
+	// 				if (l === root) {
+	// 					l = null
+	// 					break;
+	// 				}
+	// 			}
+	// 		}
+	// 		if (l) {
+	// 			console.log('子元素命中！');
+	// 			callback(e, l);
+	// 		}
+	// 	})
+	// }
 };
 
 export default common;
