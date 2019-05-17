@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="7px" height="12px" viewBox="0 0 7 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>向左返回 icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="返回控件" transform="translate(-33.000000, -6.000000)" fill="#FFFFFF">
+            <path d="M36.25,15 C36.0530355,15 35.8645796,14.921823 35.7280803,14.7832926 L31.2022421,10.1952025 C30.9248987,9.91425944 30.9339504,9.46725639 31.2223368,9.19707808 C31.5105422,8.92689977 31.9689191,8.93554688 32.2460814,9.21666645 L36.25,13.2756941 L40.2539186,9.21666645 C40.5308999,8.93572336 40.9892768,8.92689977 41.2776632,9.19707808 C41.5660496,9.46725639 41.5751013,9.91425944 41.2977579,10.1952025 L36.7719197,14.7832926 C36.6354204,14.921823 36.4469645,15 36.25,15" id="向左返回-icon" transform="translate(36.250000, 12.000000) scale(-1, 1) rotate(90.000000) translate(-36.250000, -12.000000) "></path>
+        </g>
+    </g>
+</svg>

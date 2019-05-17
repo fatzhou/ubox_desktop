@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="10px" height="6px" viewBox="0 0 10 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>chevron-down</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="PC界面-未选中文件" transform="translate(-915.000000, -31.000000)" fill="#FFFFFF">
+            <g id="顶部">
+                <g id="用户信息" transform="translate(810.000000, 26.000000)">
+                    <path d="M110,11 C109.812415,11 109.632933,10.921823 109.502934,10.7832926 L105.192611,6.19520253 C104.928475,5.91425944 104.937096,5.46725639 105.211749,5.19707808 C105.486231,4.92689977 105.92278,4.93554688 106.186744,5.21666645 L110,9.27569413 L113.813256,5.21666645 C114.077048,4.93572336 114.513597,4.92689977 114.788251,5.19707808 C115.062904,5.46725639 115.071525,5.91425944 114.807389,6.19520253 L110.497066,10.7832926 C110.367067,10.921823 110.187585,11 110,11" id="chevron-down" transform="translate(110.000000, 8.000000) scale(1, -1) translate(-110.000000, -8.000000) "></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

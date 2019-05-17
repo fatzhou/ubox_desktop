@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>checked</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="PC界面-有选中文件" transform="translate(-206.000000, -407.000000)">
+            <g id="右侧内容区域" transform="translate(190.000000, 60.000000)">
+                <g id="img01-copy-4" transform="translate(0.000000, 331.000000)">
+                    <g id="checked" transform="translate(16.000000, 16.000000)">
+                        <rect id="Rectangle-43-Copy-5" fill="#00C77D" x="0" y="0" width="12" height="12" rx="2"></rect>
+                        <path d="M3.72242063,5.55575396 L9.3890873,5.55575396 L9.3890873,6.8890873 L3.72242063,6.8890873 L2.3890873,6.8890873 L2.3890873,2.8890873 L3.72242063,2.8890873 L3.72242063,5.55575396 Z" id="Combined-Shape" fill="#FFFFFF" transform="translate(5.889087, 4.889087) rotate(-45.000000) translate(-5.889087, -4.889087) "></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

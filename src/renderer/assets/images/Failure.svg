@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>失败icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="失败提示" transform="translate(-16.000000, -16.000000)" fill="#F35530">
+            <path d="M28,26 L28,23 C28,22.4477153 27.5522847,22 27,22 C26.4477153,22 26,22.4477153 26,23 L26,26 L23,26 C22.4477153,26 22,26.4477153 22,27 C22,27.5522847 22.4477153,28 23,28 L26,28 L26,31 C26,31.5522847 26.4477153,32 27,32 C27.5522847,32 28,31.5522847 28,31 L28,28 L31,28 C31.5522847,28 32,27.5522847 32,27 C32,26.4477153 31.5522847,26 31,26 L28,26 Z M27,38 C20.9248678,38 16,33.0751322 16,27 C16,20.9248678 20.9248678,16 27,16 C33.0751322,16 38,20.9248678 38,27 C38,33.0751322 33.0751322,38 27,38 Z" id="失败icon" transform="translate(27.000000, 27.000000) rotate(45.000000) translate(-27.000000, -27.000000) "></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>folder icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="PC界面-有选中文件" transform="translate(-227.000000, -270.000000)">
+            <g id="右侧内容区域" transform="translate(190.000000, 60.000000)">
+                <g id="Document" transform="translate(0.000000, 199.000000)">
+                    <g id="folder-icon" transform="translate(37.000000, 11.000000)">
+                        <path d="M1,2 L20,2 C21.1045695,2 22,2.8954305 22,4 L22,20 C22,21.1045695 21.1045695,22 20,22 L2,22 C0.8954305,22 1.3527075e-16,21.1045695 0,20 L0,3 C-6.76353751e-17,2.44771525 0.44771525,2 1,2 Z" id="Rectangle-7-Copy-4" fill="#EBA027"></path>
+                        <path d="M1,6.82505616e-17 L7.20602061,0 C7.57642808,-6.80427477e-17 7.91649435,0.204746105 8.08980554,0.532106642 L9.00779148,2.26605332 C9.13699666,2.51010379 9.04389616,2.81268728 8.79984569,2.94189247 C8.72776937,2.98005111 8.64745315,3 8.56589901,3 L0,3 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.01453063e-16 1,0 Z" id="Rectangle-10" fill="#EBA027"></path>
+                        <rect id="Rectangle-5" fill="#FFFFFF" x="2" y="4" width="18.5" height="5" rx="0.5"></rect>
+                        <path d="M1,6 L21,6 C21.5522847,6 22,6.44771525 22,7 L22,20 C22,21.1045695 21.1045695,22 20,22 L2,22 C0.8954305,22 1.3527075e-16,21.1045695 0,20 L0,7 C-6.76353751e-17,6.44771525 0.44771525,6 1,6 Z" id="Rectangle-7-Copy-4" fill="#F8C93E"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
