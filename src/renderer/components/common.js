@@ -3,35 +3,38 @@ const http = require('http');
 const querystring = require("querystring");
 var env = "test";
 import Common from '../../Common';
+import { ipcRenderer } from 'electron';
 var upnp = require('node-upnp-utils');
 
 var common = {
 	env: "test",
 	box: null,
-	cookie: '',
 	post(url, params, opt) {
-		console.log("start to post..........")
+		console.log("start to post..........", common.boxIp)
 		return new Promise((resolve, reject) => {
-			console.log("aaaaa")
 			opt = opt || {};
-			console.log("bbbb")
+			console.log("----", opt.boxIp, opt.boxPort)
+			let cookie = ipcRenderer.sendSync("get-global", "cookie");
 			var options = {
-				hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
-				port: (common.box && common.box.boxPort) || 443,
-				path: (this.env == 'test' && !common.box) ? '/iamtest' + url : url,
+				// hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
+				hostname: opt.boxIp || common.box && common.box.boxIp,
+				port: opt.boxPort || (common.box && common.box.boxPort) || 80,
+				path: url,
+				// path: (this.env == 'test' && !common.box) ? '/iamtest' + url : url,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'cookie': this.cookie
+					'cookie': cookie
 				},
 				method: 'POST'
 			};
-			console.log("ccccc")
-			let postTool = common.box ? http : https;
+			console.log("ccccc", options)
+			let postTool = http;
 			console.log("start to call..........")
 			var req = postTool.request(options, (res) => {
 				console.log('响应头部:', res.headers);
 				if (res.headers['set-cookie']) {
-					this.cookie = res.headers['set-cookie'];
+					let cookie = res.headers['set-cookie'];
+					ipcRenderer.send('update-global', 'cookie', cookie);
 				}
 				res.setEncoding('utf8');
 				var data = '';

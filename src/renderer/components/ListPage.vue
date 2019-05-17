@@ -17,18 +17,11 @@
     <div class="body-box">
       <div class="left-box">
         <ul>
-          <li class="active">
+          <li class="active" v-for="disk in disks" :key="disk.label">
             <div class="img-div"></div>
             <div class="diskinfo-div">
-              <p class="disk-name">Disk A</p>
-              <p class="disk-info">246 GB/982 GB</p>
-            </div>
-          </li>
-          <li>
-            <div class="img-div"></div>
-            <div class="diskinfo-div">
-              <p class="disk-name">Disk B</p>
-              <p class="disk-info">246 GB/982 GB</p>
+              <p class="disk-name">{{ disk.label }}</p>
+              <p class="disk-info">{{ disk.used }} GB/{{ disk.size }} GB</p>
             </div>
           </li>
         </ul>
@@ -61,9 +54,9 @@
           <ul >
 			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name">  
 				<div class="fl file-checkbox"></div>
-				<div class="fl file-name ${type}">{{ file.Filename }}<span class="download-icon"></span></div>
+				<div class="fl file-name ">{{ file.name }}<span class="download-icon"></span></div>
 				<div class="fl file-size">{{ file.size }}</div>
-				<div class="fl file-time">{{ file.lastWriteTime }}</div>                      
+				<div class="fl file-time">{{ file.time }}</div>                      
 			</li>
 		  </ul>
         </div>
@@ -79,12 +72,12 @@
 <script>
 const remote = require("electron").remote;
 const { ipcRenderer } = require("electron");
-var common = require("./common");
+import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 
 export default {
-  name: "list-page",
+  name: "list",
   data() {
     return {
       box: {},
@@ -92,6 +85,7 @@ export default {
       loginInfo: {},
       smb2Client: {},
       toastStr: "",
+      disks: [],
       fileList: []
     };
   },
@@ -109,23 +103,87 @@ export default {
     initSamba() {
       let location = this.box.URLBase;
       var boxIp = location.split(":")[0];
-      common.http("/ubeybox/service/pc_getsambaconf", {}).then(res => {
-        if (res.err_no == 0) {
-          this.smb2Client = new SMB2({
-            share: "\\\\" + boxIp + "\\" + res.tag,
-            domain: res.tag,
-            username: res.samba_uname,
-            password: res.samba_pwd
-            // username: this.loginInfo.username,
-            // password: this.loginInfo.password,
-          });
-          this.renderFileList("");
+      var boxPort = location.split(":")[1];
+
+      common
+        .post(
+          "/ubeybox/service/pc_getsambaconf",
+          {},
+          {
+            boxIp: boxIp,
+            boxPort: boxPort
+          }
+        )
+        .then(res => {
+          if (res.err_no == 0) {
+            this.smb2Client = new SMB2({
+              share: "\\\\" + boxIp + "\\" + res.tag,
+              domain: res.tag,
+              username: res.samba_uname,
+              password: res.samba_pwd
+              // username: this.loginInfo.username,
+              // password: this.loginInfo.password,
+            });
+            this.renderDisks();
+          }
+        });
+    },
+    renderDisks() {
+      let location = this.box.URLBase;
+      var boxIp = location.split(":")[0];
+      var boxPort = location.split(":")[1];
+      let diskCount = 0;
+      this.smb2Client.readdir("", (err, content) => {
+        if (!content || !content.length) {
+          return false;
         }
+        this.renderFileList(content[0].Filename);
+
+        common
+          .post(
+            "/ubeybox/device/get_status",
+            {},
+            {
+              boxIp: boxIp,
+              boxPort: boxPort
+            }
+          )
+          .then(res => {
+            if (res.err_no == 0) {
+              let disks = [];
+              res.disks = res.disks || [];
+              content.forEach(item => {
+                let disk = res.disks.find(disk => {
+                  return disk.uuid == item.Filename;
+                });
+                let label =
+                  disk && disk.label
+                    ? disk.label
+                    : "Disk " +
+                      String.fromCharCode("A".charCodeAt(0) + diskCount++);
+                disks.push({
+                  name: item.Filename,
+                  label: label,
+                  size: this.computeGB(disk && disk.size),
+                  used: this.computeGB(disk && disk.used)
+                });
+              });
+              this.disks = disks;
+            }
+          });
       });
     },
+    computeGB(size) {
+      if (!size) {
+        return 0;
+      } else {
+        return (size / Math.pow(2, 30)).toFixed(2);
+      }
+    },
     renderFileList(folder) {
+      console.log("查询目录：" + folder);
       let self = this;
-      this.smb2Client.readdir("", function(err, content) {
+      this.smb2Client.readdir(folder, function(err, content) {
         if (err) throw err;
         console.log(content);
         window.content = content; //For debug
@@ -135,16 +193,18 @@ export default {
           if (/\.uploading$/g.test(item.Filename)) {
             return;
           }
+          var low = item.LastWriteTime.readUInt32LE(0),
+            high = item.LastWriteTime.readUInt32LE(4);
           var lastWriteTime = self.transferDate(
             FileTime.toDate({
               low: low,
               high: high
             })
           );
-          var type;
-          item.FileAttributes == 128
-            ? "type-folder"
-            : self.getFileType(content[i].Filename);
+          var type =
+            item.FileAttributes == 128
+              ? "type-folder"
+              : self.getFileType(item.Filename);
 
           fileList.push({
             name: item.Filename,
@@ -154,7 +214,7 @@ export default {
           });
         });
 
-        this.fileList = fileList;
+        self.fileList = fileList;
       });
     },
     getFileType(name) {

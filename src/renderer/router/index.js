@@ -11,13 +11,13 @@ export default new Router({
 			component: require('@/components/LoginPage').default
 		},
 		{
-			path: '/',
+			path: '/list',
 			name: 'list',
 			component: require('@/components/ListPage').default
 		},
 		{
 			path: '*',
-			redirect: '/'
+			redirect: '/list'
 		}
 	]
 })
