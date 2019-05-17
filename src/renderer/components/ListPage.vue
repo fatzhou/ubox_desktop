@@ -84,31 +84,31 @@ const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 
 export default {
-    name: "list-page",
-    data() {
-        return {
-        box: {},
-        userInfo: {},
-        loginInfo: {},
-        smb2Client: {},
-        toastStr: "",
-        fileList: []
-        };
-    },
-    mounted() {
-        this.initGlobalInfo();
-        this.initSamba();
-        this.renderFileList("");
-    },
-    computed: {
-        isShowToast() {
-            console.log(this)
-            return this.$store.state.Counter.isShowToast
-        },
-        toastText() {
-            return this.$store.state.Counter.toastText
-        }
-    },
+  name: "list-page",
+  data() {
+    return {
+      box: {},
+      userInfo: {},
+      loginInfo: {},
+      smb2Client: {},
+      toastStr: "",
+      fileList: []
+    };
+  },
+  computed: {
+      isShowToast() {
+          console.log(this)
+          return this.$store.state.Counter.isShowToast
+      },
+      toastText() {
+          return this.$store.state.Counter.toastText
+      }
+  },
+  mounted() {
+    this.initGlobalInfo();
+    this.initSamba();
+  },
+
   methods: {
     initGlobalInfo() {
       this.box = ipcRenderer.sendSync("get-global", "box");
@@ -119,47 +119,52 @@ export default {
     initSamba() {
       let location = this.box.URLBase;
       var boxIp = location.split(":")[0];
-      this.smb2Client = new SMB2({
-        share: "\\\\" + boxIp + "\\abc",
-        domain: "abc",
-        username: "abc",
-        password: "123456"
-        // username: this.loginInfo.username,
-        // password: this.loginInfo.password,
+      common.http("/ubeybox/service/pc_getsambaconf", {}).then(res => {
+        if (res.err_no == 0) {
+          this.smb2Client = new SMB2({
+            share: "\\\\" + boxIp + "\\" + res.tag,
+            domain: res.tag,
+            username: res.samba_uname,
+            password: res.samba_pwd
+            // username: this.loginInfo.username,
+            // password: this.loginInfo.password,
+          });
+          this.renderFileList("");
+        }
       });
     },
     renderFileList(folder) {
       let self = this;
       this.smb2Client.readdir("", function(err, content) {
         if (err) throw err;
-		console.log(content);
-		window.content = content; //For debug
+        console.log(content);
+        window.content = content; //For debug
 
-		let fileList = [];
-		content.forEach(item => {
+        let fileList = [];
+        content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
-            // continue;
-		  }	
-		 var lastWriteTime = self.transferDate(
+            return;
+          }
+          var lastWriteTime = self.transferDate(
             FileTime.toDate({
               low: low,
               high: high
             })
-		  );
-		  var type;
-			item.FileAttributes == 128
-              ? "type-folder"
-			  : self.getFileType(content[i].Filename);
-			  
-			fileList.push({
-				name: item.Filename,
-				type: type,
-				size: 0,
-				time: lastWriteTime
-			})
-		})
+          );
+          var type;
+          item.FileAttributes == 128
+            ? "type-folder"
+            : self.getFileType(content[i].Filename);
 
-		this.fileList = fileList;
+          fileList.push({
+            name: item.Filename,
+            type: type,
+            size: 0,
+            time: lastWriteTime
+          });
+        });
+
+        this.fileList = fileList;
       });
     },
     getFileType(name) {
