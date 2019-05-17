@@ -1,10 +1,20 @@
+const https = require('https');
+const http = require('http');
+const querystring = require("querystring");
+var env = "test";
+import Common from '../../Common';
+var upnp = require('node-upnp-utils');
+
 var common = {
 	env: "test",
 	box: null,
 	cookie: '',
-	post(url, params, opt, callback, errorCallback) {
+	post(url, params, opt) {
+		console.log("start to post..........")
 		return new Promise((resolve, reject) => {
+			console.log("aaaaa")
 			opt = opt || {};
+			console.log("bbbb")
 			var options = {
 				hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
 				port: (common.box && common.box.boxPort) || 443,
@@ -15,7 +25,9 @@ var common = {
 				},
 				method: 'POST'
 			};
+			console.log("ccccc")
 			let postTool = common.box ? http : https;
+			console.log("start to call..........")
 			var req = postTool.request(options, (res) => {
 				console.log('响应头部:', res.headers);
 				if (res.headers['set-cookie']) {
