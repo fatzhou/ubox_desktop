@@ -134,7 +134,7 @@ export default {
 		let fileList = [];
 		content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
-            continue;
+            return;
 		  }	
 		 var lastWriteTime = self.transferDate(
             FileTime.toDate({
