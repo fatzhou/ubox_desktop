@@ -1,10 +1,3 @@
-const https = require('https');
-const http = require('http');
-const querystring = require("querystring");
-const env = "test";
-const Common = require('../../Common');
-var upnp = require('node-upnp-utils');
-
 var common = {
 	env: "test",
 	box: null,
@@ -41,7 +34,7 @@ var common = {
 						res = JSON.parse(data);
 					} catch (e) {
 						res = {};
-						reject();
+						reject(JSON.parse(data));
 						return;
 					}
 					if (!opt.muteError) {
