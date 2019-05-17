@@ -69,9 +69,9 @@
         </div>
       </div>
     </div>
-    <div class="alert-box box-hide">
+    <div class="alert-box" v-if="isShowToast">
 		<div class="alert-status"></div>
-		<div class="alert-text">{{ toastStr }}</div>
+		<div class="alert-text">{{ toastText }}</div>
     </div>
   </div>
 </template>
@@ -84,22 +84,31 @@ const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 
 export default {
-  name: "list-page",
-  data() {
-    return {
-      box: {},
-      userInfo: {},
-      loginInfo: {},
-      smb2Client: {},
-	  toastStr: "",
-      fileList: []
-    };
-  },
-  mounted() {
-    this.initGlobalInfo();
-    this.initSamba();
-	this.renderFileList("");
-  },
+    name: "list-page",
+    data() {
+        return {
+        box: {},
+        userInfo: {},
+        loginInfo: {},
+        smb2Client: {},
+        toastStr: "",
+        fileList: []
+        };
+    },
+    mounted() {
+        this.initGlobalInfo();
+        this.initSamba();
+        this.renderFileList("");
+    },
+    computed: {
+        isShowToast() {
+            console.log(this)
+            return this.$store.state.Counter.isShowToast
+        },
+        toastText() {
+            return this.$store.state.Counter.toastText
+        }
+    },
   methods: {
     initGlobalInfo() {
       this.box = ipcRenderer.sendSync("get-global", "box");
