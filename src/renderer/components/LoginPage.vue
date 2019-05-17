@@ -46,6 +46,7 @@ export default {
       clickSubmitClass: "hide-load"
     };
   },
+<<<<<<< HEAD
     computed: {
       isShowToast() {
           console.log(this)
@@ -54,6 +55,16 @@ export default {
       toastText() {
           return this.$store.state.Counter.toastText
       }
+=======
+  computed: {
+    isShowToast() {
+      console.log(this);
+      return this.$store.state.Counter.isShowToast;
+    },
+    toastText() {
+      return this.$store.state.Counter.toastText;
+    }
+>>>>>>> 7a2fde1f8c4f74408be4e14e06e65f4d186bd248
   },
   methods: {
     usernameChange() {
@@ -101,7 +112,7 @@ export default {
       console.log("登录用户名：" + username + ",登录密码：" + password);
       // ipcRenderer.send('login', username, password);
 
-      //开始获取盒子
+      //开始获取盒子git s
       let unameHash = md5(username);
       return common
         .discovery(unameHash)

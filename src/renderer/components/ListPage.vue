@@ -90,13 +90,13 @@ export default {
     };
   },
   computed: {
-      isShowToast() {
-          console.log(this)
-          return this.$store.state.Counter.isShowToast
-      },
-      toastText() {
-          return this.$store.state.Counter.toastText
-      }
+    isShowToast() {
+      console.log(this);
+      return this.$store.state.Counter.isShowToast;
+    },
+    toastText() {
+      return this.$store.state.Counter.toastText;
+    }
   },
   mounted() {
     this.initGlobalInfo();
@@ -135,8 +135,23 @@ export default {
               // password: this.loginInfo.password,
             });
             this.renderDisks();
+            setTimeout(() => {
+              this.smb2Client.createWriteStream("\\").then(res => {
+                console.log("aaaa");
+              });
+            }, 3000);
           }
         });
+    },
+    downloadFile() {
+      this.smb2Client.createReadStream("path\\to\\the\\file", function(
+        err,
+        readStream
+      ) {
+        if (err) throw err;
+        var writeStream = fs.createWriteStream("localFile");
+        readStream.pipe(writeStream);
+      });
     },
     renderDisks() {
       let location = this.box.URLBase;
