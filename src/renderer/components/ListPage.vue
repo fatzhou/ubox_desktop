@@ -92,13 +92,12 @@ export default {
       loginInfo: {},
       smb2Client: {},
 	  toastStr: "",
-      fileList: []
+      fileList: [],
     };
   },
   mounted() {
     this.initGlobalInfo();
     this.initSamba();
-	this.renderFileList("");
   },
   methods: {
     initGlobalInfo() {
@@ -110,14 +109,20 @@ export default {
     initSamba() {
       let location = this.box.URLBase;
       var boxIp = location.split(":")[0];
-      this.smb2Client = new SMB2({
-        share: "\\\\" + boxIp + "\\abc",
-        domain: "abc",
-        username: "abc",
-        password: "123456"
-        // username: this.loginInfo.username,
-        // password: this.loginInfo.password,
-      });
+	  common.http('/ubeybox/service/pc_getsambaconf', {})
+	  .then(res => {
+		  if(res.err_no == 0) {
+			this.smb2Client = new SMB2({
+				share: "\\\\" + boxIp + "\\" + res.tag,
+				domain: res.tag,
+				username: res.samba_uname,
+				password: res.samba_pwd
+				// username: this.loginInfo.username,
+				// password: this.loginInfo.password,
+			});
+			this.renderFileList("");
+		  }
+	  })
     },
     renderFileList(folder) {
       let self = this;
