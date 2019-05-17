@@ -129,7 +129,7 @@ export default {
 		let fileList = [];
 		content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
-            continue;
+            // continue;
 		  }	
 		 var lastWriteTime = self.transferDate(
             FileTime.toDate({
@@ -137,7 +137,7 @@ export default {
               high: high
             })
 		  );
-		  var type =
+		  var type;
 			item.FileAttributes == 128
               ? "type-folder"
 			  : self.getFileType(content[i].Filename);

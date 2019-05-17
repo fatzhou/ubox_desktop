@@ -6,15 +6,15 @@
         <p class="title-des">Beyond blockchain,</p>
         <p class="title-des">open the gate to the decentralized future</p>
         <label for="username" class="form-input mar-btm-20 mar-top-45">
-          <input type="text" value="1@qq.com" id="username" v-on:input="usernameChange" v-model="username">
+          <input type="text" value="1@qq.com" id="username" :class="usernameInputClass" v-on:blur="testUsername()" v-on:input="usernameChange" v-model="username">
           <span class="label" id="username-wrap" :class="usernameActive">Email</span>
         </label>
         <label for="password" class="form-input">
           <input type="password" value="A123456789" id="password" v-on:input="passwordChange" v-model="password">
           <span class="label" id="password-wrap" :class="passwordActive">Password</span>
         </label>
-        <div class="login-btn hide-load" id="submit-btn" v-on:click="sbumitForm()">
-          <span class="loading" v-if="isShowLoading"></span>Log in
+        <div class="login-btn" id="submit-btn" :class="clickSubmitClass" v-on:click="sbumitForm()">
+          <span class="loading"></span>Log in
         </div>
       </div>
     </div>
@@ -40,50 +40,50 @@ export default {
       boxPort: "",
       username: '1@qq.com',
       password: 'A123456789',
-      isShowLoading: false,
       usernameActive: '',
       passwordActive: '',
+      usernameInputClass: '',
+      clickSubmitClass: 'hide-load'
     };
   },
   methods: {
     usernameChange() {
-        // if (this.username.length > 0) {
-        //     this.usernameActive = 'active';
-        //     let rep = /([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})/;
-        //     if (rep.test(this.username)) {
-        //         usernameInput.classList.remove('error');
-        //     } else {
-        //         usernameInput.classList.add('error');
-        //         usernameInput.classList.add('shake');
-        //         setTimeout(() => {
-        //             usernameInput.classList.remove('shake');
-        //         }, 100);
-        //     }
-        // } else {
-        //     this.usernameActive = '';
-        // }
+        if (this.username.length > 0) {
+            this.usernameActive = 'active';
+        } else {
+            this.usernameActive = '';
+        }
+    },
+    testUsername() {
+        if (this.username.length > 0) {
+            let rep = /([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})/;
+            if (rep.test(this.username)) {
+                this.usernameInputClass = '';
+            } else {
+                this.usernameInputClass = 'error shake';
+                setTimeout(() => {
+                    this.usernameInputClass = 'error';
+                }, 100);
+            }
+        }
     },
     passwordChange() {
-        // if (this.password.length > 0) {
-        //     passwordLabel.classList.add('active');
-        // } else {
-        //     passwordLabel.classList.remove('active');
-        // }
+        if (this.password.length > 0) {
+            this.passwordActive = 'active';
+        } else {
+            this.passwordActive = '';
+        }
     },
     sbumitForm() {
-        // let usernameLabel = document.getElementById("username-wrap");
-        // let passwordLabel = document.getElementById("password-wrap");
-        // var submitBtn = document.getElementById('submit-btn');
         console.log("即将登录.....")
         if (this.isShowLoading == true) {
             console.log("正在提交.......")
             //正在提交中，防止重复提交
             return false;
         }
-        // submitBtn.classList.add('active');
+        this.clickSubmitClass = 'active';
         setTimeout(()=> {
-            // submitBtn.classList.remove('active');
-            this.isShowLoading = true;
+            this.clickSubmitClass = '';
         },100)
         //提交数据
         let username = this.username,
@@ -152,7 +152,7 @@ export default {
         .catch(e => {
             console.log("登录失败.....")
             setTimeout(()=> {
-                this.isShowLoading = false;
+                this.clickSubmitClass = 'hide-load';
                 if(!e) {
                     common.createToast('Your binding device is not online. Please check the network and power status');
                 } else if(!e.err_no) {
