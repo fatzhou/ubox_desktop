@@ -46,6 +46,15 @@ export default {
       clickSubmitClass: "hide-load"
     };
   },
+  computed: {
+    isShowToast() {
+      console.log(this);
+      return this.$store.state.Counter.isShowToast;
+    },
+    toastText() {
+      return this.$store.state.Counter.toastText;
+    }
+  },
   methods: {
     usernameChange() {
       if (this.username.length > 0) {
@@ -92,7 +101,7 @@ export default {
       console.log("登录用户名：" + username + ",登录密码：" + password);
       // ipcRenderer.send('login', username, password);
 
-      //开始获取盒子
+      //开始获取盒子git s
       let unameHash = md5(username);
       return common
         .discovery(unameHash)
