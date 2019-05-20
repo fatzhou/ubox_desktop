@@ -60,6 +60,10 @@ class ElectronicUbbey {
 			//登录流程结束，进入列表页
 			this.mainWindow.loadURL(listURL);
 		});
+		ipcMain.on('logout-finished', (event) => {
+			//登录流程结束，进入列表页
+			this.mainWindow.loadURL(loginURL);
+		});
 
 		ipcMain.on('update-global', (event, key, value) => {
 			this.shareObjects[key] = value;
