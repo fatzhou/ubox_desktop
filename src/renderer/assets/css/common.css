@@ -597,7 +597,7 @@ a {
 	background-size: 6px auto;
 	background-position-x: calc(100% - 5px);
 	cursor: pointer;
-	max-width: 100px;
+	max-width: 130px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
