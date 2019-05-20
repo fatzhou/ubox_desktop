@@ -102,7 +102,7 @@ class ElectronicUbbey {
 			// titlebarAppearsTransparent: 'YES'
 		});
 		this.mainWindow.loadURL(loginURL);
-		this.mainWindow.webContents.openDevTools();
+		// this.mainWindow.webContents.openDevTools();
 		this.mainWindow.on('ready-to-show', function () {
 			self.mainWindow.show();
 			self.mainWindow.focus();
