@@ -136,9 +136,11 @@ export default {
             });
             this.renderDisks();
             setTimeout(() => {
-              this.smb2Client.createWriteStream("\\").then(res => {
-                console.log("aaaa");
-              });
+              this.smb2Client
+                .createWriteStream("~\\Downloads\\test")
+                .then(res => {
+                  console.log("aaaa");
+                });
             }, 3000);
           }
         });
@@ -193,10 +195,9 @@ export default {
                   size: this.computeGB(disk && disk.size),
                   used: this.computeGB(disk && disk.used)
                 });
-                if(disks[0]) {
+                if (disks[0]) {
                   disks[0].isSelect = true;
                 }
-                
               });
               this.disks = disks;
             }
@@ -309,10 +310,9 @@ export default {
     changeDisk(disk) {
       this.disks.filter(item => {
         item.isSelect = false;
-      })
+      });
       disk.isSelect = true;
       this.renderFileList(disk.name);
-
     }
   }
 };
