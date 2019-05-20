@@ -5,7 +5,7 @@
         <span class="back-btn" ></span>
         <span class="next-btn" ></span>
       </div>
-      <div class="download-btn" v-if="selectFileList.length != 0">Download</div>
+      <div class="download-btn" v-if="selectFileList.length != 0" @click="downloadAllFiles()">Download</div>
       <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
         <p @click="toggleLogout()">
           {{ loginInfo.username }}
@@ -26,7 +26,7 @@
           </li>
         </ul>
         <div class="connect-status">
-          <span class="connect-circle error">
+          <span class="connect-circle">
             <em></em>
           </span>连接正常
         </div>
@@ -50,7 +50,7 @@
           <ul >
 			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name"  @click="toggleSelect(file)">  
 				<div class="fl file-checkbox" :class="file.isSelect ? 'select' : ''"></div>
-				<div class="fl file-name "  :class="file.type"><a href="javascript:void(0)" @click.stop @click="goNextFolder(file)">{{ file.name }}</a><span @click.stop="downloadFileToLocal(file.name)" class="download-icon"></span></div>
+				<div class="fl file-name "  :class="file.type"><a href="javascript:void(0)" @click.stop @click="goNextFolder(file)">{{ file.name }}</a><span v-if="file.type != 'type-folder'" @click.stop="downloadFileToLocal(file.name)" class="download-icon"></span></div>
 				<div class="fl file-size">{{ file.size }}</div>
 				<div class="fl file-time">{{ file.time }}</div>                      
 			</li>
@@ -142,6 +142,16 @@ export default {
             this.renderDisks();
           }
         });
+    },
+    downloadAllFiles() {
+      this.selectFileList.map(item => {
+        if(item.type != 'type-folder') {
+          console.log(' +++++ ' + item.name)
+          this.downloadFileToLocal(item.name); 
+        }
+      })
+      this.selectFileList = [];
+      this.toggleAllSelect();
     },
     downloadFileToLocal(name) {
       let remotePath = this.currPath + "\\" + name,
@@ -303,6 +313,7 @@ export default {
       }
       return "file-name";
     },
+
     transferDate(time) {
         //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
         var date = new Date(time);

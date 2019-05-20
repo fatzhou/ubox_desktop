@@ -583,6 +583,9 @@ a {
 
 .path p {
 	overflow-x: scroll;
+	white-space: nowrap;
+    overflow-y: hidden;
+    height: 36px;
 }
 
 .path span {
@@ -594,7 +597,11 @@ a {
 	background-size: 6px auto;
 	background-position-x: calc(100% - 5px);
 	cursor: pointer;
+	max-width: 100px;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
+
 
 .path span:last-child {
 	color: #fff;
