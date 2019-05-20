@@ -133,6 +133,7 @@ export default {
             this.smb2Client = new SMB2({
               share: "\\\\" + boxIp + "\\" + res.tag,
               domain: res.tag,
+              autoCloseTimeout: 0, //设置此参数以后不会自动关闭连接，需要手动调用smb2Client.disconnect();
               username: res.samba_uname,
               password: res.samba_pwd
               // username: this.loginInfo.username,
@@ -247,7 +248,7 @@ export default {
           );
           var typeTest = /[.]/g;
           var type =
-            typeTest.test(item.Filename) == false
+            item.FileAttributes == 16
               ? "type-folder"
               : self.getFileType(item.Filename);
 
