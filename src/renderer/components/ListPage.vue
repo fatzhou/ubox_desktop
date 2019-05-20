@@ -5,7 +5,7 @@
         <span class="back-btn"></span>
         <span class="next-btn active"></span>
       </div>
-      <div class="download-btn" v-if="selectFileList.length != 0">Download</div>
+      <div class="download-btn button" v-if="selectFileList.length != 0">Download</div>
       <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
         <p @click="toggleLogout()">
           {{ loginInfo.username }}

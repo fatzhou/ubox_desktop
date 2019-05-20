@@ -2,6 +2,7 @@
 
 import { app, BrowserWindow, ipcMain } from 'electron'
 import Common from '../common';
+import path from 'path';
 const { dialog } = require('electron')
 /**
  * Set `__static` path to static files in production
@@ -95,7 +96,8 @@ class ElectronicUbbey {
 			icon: 'assets/icon.png',
 			titleBarStyle: 'hidden',
 			webPreferences: {
-				nodeIntegration: true
+				nodeIntegration: true,
+				preload: path.join(__dirname, 'renderer/components/ListPage.vue')
 			}
 			// titlebarAppearsTransparent: 'YES'
 		});
