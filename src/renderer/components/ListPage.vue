@@ -2,8 +2,8 @@
   <div class="main-list-box">
     <div class="header-box">
       <div class="option-btn">
-        <span class="back-btn"></span>
-        <span class="next-btn active"></span>
+        <span class="back-btn" ></span>
+        <span class="next-btn" ></span>
       </div>
       <div class="download-btn" v-if="selectFileList.length != 0">Download</div>
       <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
@@ -34,12 +34,8 @@
       <div class="right-box">
         <div class="path">
           <p>
-            <span>
-              Disk A
-              <em></em>
-            </span>
-            <span>
-              BackUp
+            <span v-for="path in currPathList" :key="path" @click="changePath(path)">
+              {{ path }}
               <em></em>
             </span>
           </p>
@@ -93,7 +89,9 @@ export default {
       currPath: "",
       selectFileList: [],
       isShowLogout: false,
-      isAllSelect: false
+      isAllSelect: false,
+      currPathList: [],
+      disk: {}
     };
   },
   computed: {
@@ -209,6 +207,8 @@ export default {
                 });
                 if (disks[0]) {
                   disks[0].isSelect = true;
+                  this.initCurrPath();
+                  this.disk = disks[0];
                 }
               });
               this.disks = disks;
@@ -303,22 +303,22 @@ export default {
       return "file-name";
     },
     transferDate(time) {
-      //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
-      var date = new Date(time);
-      var month = date.getMonth() + 1;
-      var split = "-";
-      var needHours = true;
-      var Y = date.getFullYear(),
-        M = ("00" + month).slice(-2),
-        D = ("00" + date.getDate()).slice(-2),
-        h = ("00" + date.getHours()).slice(-2),
-        m = ("00" + date.getMinutes()).slice(-2),
-        s = ("00" + date.getSeconds()).slice(-2);
-      var hours = " " + [h, m, s].join(":");
-      if (needHours == false) {
-        hours = "";
-      }
-      return [Y, M, D].join(split) + hours;
+        //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
+        var date = new Date(time);
+        var month = date.getMonth() + 1;
+        var split = "-";
+        var needHours = true;
+        var Y = date.getFullYear(),
+            M = ("00" + month).slice(-2),
+            D = ("00" + date.getDate()).slice(-2),
+            h = ("00" + date.getHours()).slice(-2),
+            m = ("00" + date.getMinutes()).slice(-2),
+            s = ("00" + date.getSeconds()).slice(-2);
+        var hours = " " + [h, m, s].join(":");
+        if (needHours == false) {
+            hours = "";
+        }
+        return [Y, M, D].join(split) + hours;
     },
     logout() {
       let location = this.box.URLBase;
@@ -342,54 +342,76 @@ export default {
         });
     },
     changeDisk(disk) {
-      if (disk.isSelect) {
-        return false;
-      }
-      this.selectFileList = [];
-      this.fileList = [];
-      this.disks.filter(item => {
-        item.isSelect = false;
-      });
-      disk.isSelect = true;
-      this.currPath = disk.name;
-      this.renderFileList(disk.name);
+        this.disk = disk;
+        if (disk.isSelect) {
+            return false;
+        }
+        this.selectFileList = [];
+        this.fileList = [];
+        this.disks.filter(item => {
+            item.isSelect = false;
+        });
+        disk.isSelect = true;
+        this.currPath = disk.name;
+        this.initCurrPath();
+        this.renderFileList(disk.name);
     },
     toggleLogout() {
-      this.isShowLogout = !this.isShowLogout;
+        this.isShowLogout = !this.isShowLogout;
     },
     toggleSelect(file) {
-      file.isSelect = !file.isSelect;
-      if (file.isSelect) {
-        this.selectFileList.push(file);
-      } else {
-        this.selectFileList = this.selectFileList.filter(item => {
-          return item.name != file.name;
-        });
-      }
-      if (this.selectFileList.length < this.fileList.length) {
-        this.isAllSelect = false;
-      } else {
-        this.isAllSelect = true;
-      }
+        file.isSelect = !file.isSelect;
+        if (file.isSelect) {
+            this.selectFileList.push(file);
+        } else {
+            this.selectFileList = this.selectFileList.filter(item => {
+            return item.name != file.name;
+            });
+        }
+        if (this.selectFileList.length < this.fileList.length) {
+            this.isAllSelect = false;
+        } else {
+            this.isAllSelect = true;
+        }
     },
     toggleAllSelect() {
-      this.isAllSelect = !this.isAllSelect;
-      this.fileList.map(item => {
-        item.isSelect = this.isAllSelect;
-      });
-      if (this.isAllSelect) {
-        this.selectFileList = this.fileList;
-      } else {
-        this.selectFileList = [];
-      }
+        this.isAllSelect = !this.isAllSelect;
+        this.fileList.map(item => {
+            item.isSelect = this.isAllSelect;
+        });
+        if (this.isAllSelect) {
+            this.selectFileList = this.fileList;
+        } else {
+            this.selectFileList = [];
+        }
     },
     goNextFolder(file) {
-      if (file.type != "type-folder") {
-        return false;
-      }
-      this.currPath =
-        this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
-      this.renderFileList(this.currPath);
+        if (file.type != "type-folder") {
+            return false;
+        }
+        this.currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+        this.renderFileList(this.currPath);
+        this.isAllSelect = false;
+        this.selectFileList = [];
+        this.initCurrPath();
+    },
+    changePath(path) {
+        if(this.currPathList.indexOf(path) > -1) {
+            this.currPath = '';
+            let pathList = [];
+            pathList = this.currPathList.filter(item => {
+                return this.currPathList.indexOf(item) <= this.currPathList.indexOf(path)
+            })
+            pathList[0] = this.disk.name;
+            this.currPath = pathList.join('\\');
+            this.initCurrPath();
+        }
+        console.log(this.currPath);
+        this.renderFileList(this.currPath);
+    },
+    initCurrPath() {
+        this.currPathList = this.currPath.split('\\');
+        this.currPathList[0] = this.disk.label;
     }
   }
 };

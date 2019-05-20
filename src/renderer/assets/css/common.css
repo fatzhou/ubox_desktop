@@ -592,7 +592,8 @@ a {
 	color: #9B9B9B;
 	background: url(../images/Arrow_right_02.svg) no-repeat -10% center;
 	background-size: 6px auto;
-	background-position-x: 92%;
+	background-position-x: calc(100% - 5px);
+	cursor: pointer;
 }
 
 .path span:last-child {
@@ -633,7 +634,9 @@ a {
 .li-box:hover {
 	background: #2B2B30;
 }
-
+.li-box .file-name{
+	height: 44px;
+}
 .file-checkbox {
 	border: 1px solid #999999;
 	border-radius: 2px;
@@ -658,6 +661,21 @@ a {
 	background-size: 22px auto;
 	background-repeat: no-repeat;
 	position: relative;
+	white-space:nowrap;
+}
+.file-name a {
+	text-overflow: -o-ellipsis-lastline;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+	-webkit-box-orient: vertical;
+	padding-right: 60px;
+	white-space:nowrap;
+	text-overflow: ellipsis;
+    width: 100%;
+    display: inline-block;
 }
 
 .download-icon {
