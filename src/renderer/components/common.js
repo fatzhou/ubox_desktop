@@ -1,6 +1,5 @@
-const https = require('https');
 const http = require('http');
-import axios from 'axios'
+import axios from 'axios';
 const querystring = require("querystring");
 var env = "test";
 import Common from '../../Common';
@@ -30,11 +29,8 @@ var common = {
 				},
 				method: 'POST'
 			};
-			console.log("ccccc", options)
 			let postTool = http;
-			console.log("start to call..........")
 			var req = postTool.request(options, (res) => {
-				console.log('响应头部:', res.headers);
 				if (res.headers['set-cookie']) {
 					let cookie = res.headers['set-cookie'];
 					ipcRenderer.send('update-global', 'cookie', cookie);
@@ -90,6 +86,7 @@ var common = {
 			});
 
 			let timeout = setTimeout(() => {
+				console.log("超时结束.......");
 				upnp.stopDiscovery(() => {
 					var device_list = upnp.getActiveDeviceList();
 					console.log(device_list.length + ' devices (services) were found.');
@@ -98,7 +95,7 @@ var common = {
 					});
 					resolve(device);
 				});
-			}, 10000);
+			}, 8000);
 
 			upnp.on('added', (device) => {
 				console.log(device)

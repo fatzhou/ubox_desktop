@@ -5,9 +5,9 @@
         <span class="back-btn"></span>
         <span class="next-btn active"></span>
       </div>
-      <div class="download-btn">Download</div>
-      <div class="username" id="logout">
-        <p>
+      <div class="download-btn" v-if="selectFileList.length != 0">Download</div>
+      <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
+        <p @click="toggleLogout()">
           {{ loginInfo.username }}
           <em></em>
         </p>
@@ -46,15 +46,15 @@
         </div>
         <div class="file-list-box">
           <div class="file-title">
-            <div class="fl file-checkbox select"></div>
+            <div class="fl file-checkbox " @click="toggleAllSelect()" :class="isAllSelect ? 'select' : ''"></div>
             <div class="fl file-name nobackground">File name</div>
             <div class="fl file-size">Size</div>
             <div class="fl file-time">Recent editing time</div>
           </div>
           <ul >
-			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name">  
-				<div class="fl file-checkbox"></div>
-				<div class="fl file-name "  :class="file.type">{{ file.name }}<span class="download-icon"></span></div>
+			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name"  @click="toggleSelect(file)">  
+				<div class="fl file-checkbox" :class="file.isSelect ? 'select' : ''"></div>
+				<div class="fl file-name "  :class="file.type"><a href="javascript:void(0)" @click.stop @click="goNextFolder(file)">{{ file.name }}</a><span @click.stop="downloadFileToLocal(file.name)" class="download-icon"></span></div>
 				<div class="fl file-size">{{ file.size }}</div>
 				<div class="fl file-time">{{ file.time }}</div>                      
 			</li>
@@ -75,18 +75,25 @@ const { ipcRenderer } = require("electron");
 import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
+import fs from "fs";
 
 export default {
   name: "list",
   data() {
     return {
       box: {},
+      boxIp: "",
+      boxPort: "",
       userInfo: {},
       loginInfo: {},
       smb2Client: {},
       toastStr: "",
       disks: [],
-      fileList: []
+      fileList: [],
+      currPath: "",
+      selectFileList: [],
+      isShowLogout: false,
+      isAllSelect: false
     };
   },
   computed: {
@@ -102,7 +109,6 @@ export default {
     this.initGlobalInfo();
     this.initSamba();
   },
-
   methods: {
     initGlobalInfo() {
       this.box = ipcRenderer.sendSync("get-global", "box");
@@ -135,23 +141,25 @@ export default {
               // password: this.loginInfo.password,
             });
             this.renderDisks();
-            setTimeout(() => {
-              this.smb2Client
-                .createWriteStream("~\\Downloads\\test")
-                .then(res => {
-                  console.log("aaaa");
-                });
-            }, 3000);
           }
         });
     },
-    downloadFile() {
-      this.smb2Client.createReadStream("path\\to\\the\\file", function(
-        err,
-        readStream
-      ) {
+    downloadFileToLocal(name) {
+      let remotePath = this.currPath + "\\" + name,
+        localPath = process.env.HOME + "/Downloads/" + name;
+      this.downloadFile(remotePath, localPath);
+    },
+    downloadFile(remotePath, localPath) {
+      console.log(`从${remotePath}下载文件到${localPath}`);
+      this.smb2Client.createReadStream(remotePath, function(err, readStream) {
         if (err) throw err;
-        var writeStream = fs.createWriteStream("localFile");
+        var writeStream = fs.createWriteStream(localPath);
+        writeStream.on("finish", function() {
+          console.log("文件下载完毕....");
+        });
+        writeStream.on("error", function() {
+          console.log("文件下载失败....");
+        });
         readStream.pipe(writeStream);
       });
     },
@@ -160,12 +168,16 @@ export default {
       var boxIp = location.split(":")[0];
       var boxPort = location.split(":")[1];
       let diskCount = 0;
+      this.boxIp = boxIp;
+      this.boxPort = boxPort || 37867;
+      console.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
       this.smb2Client.readdir("", (err, content) => {
+        console.log(content);
         if (!content || !content.length) {
           return false;
         }
         this.renderFileList(content[0].Filename);
-
+        this.currPath = content[0].Filename;
         common
           .post(
             "/ubeybox/device/get_status",
@@ -212,9 +224,10 @@ export default {
       }
     },
     renderFileList(folder) {
-      console.log("查询目录：" + folder);
+      console.log("查询目录-----：" + folder);
       let self = this;
       this.smb2Client.readdir(folder, function(err, content) {
+        console.log("abcd+++++++++");
         if (err) throw err;
         console.log(content);
         window.content = content; //For debug
@@ -232,19 +245,20 @@ export default {
               high: high
             })
           );
+          var typeTest = /[.]/g;
           var type =
-            item.FileAttributes == 128
+            typeTest.test(item.Filename) == false
               ? "type-folder"
               : self.getFileType(item.Filename);
 
           fileList.push({
+            isSelect: false,
             name: item.Filename,
             type: type,
             size: 0,
             time: lastWriteTime
           });
         });
-
         self.fileList = fileList;
       });
     },
@@ -286,7 +300,7 @@ export default {
       if (/^(zip)$/.test(suffix)) {
         return "type-zip";
       }
-      return "type-ppt";
+      return "file-name";
     },
     transferDate(time) {
       //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
@@ -306,13 +320,76 @@ export default {
       }
       return [Y, M, D].join(split) + hours;
     },
-    logout() {},
+    logout() {
+      let location = this.box.URLBase;
+      var boxIp = location.split(":")[0];
+      var boxPort = location.split(":")[1];
+      common
+        .post(
+          "/ubeybox/user/logout",
+          {},
+          {
+            boxIp: boxIp,
+            boxPort: boxPort
+          }
+        )
+        .then(res => {
+          if (res.err_no == 0) {
+            common.setBox(null);
+            this.box = {};
+            ipcRenderer.send("logout-finished");
+          }
+        });
+    },
     changeDisk(disk) {
+      if (disk.isSelect) {
+        return false;
+      }
+      this.selectFileList = [];
+      this.fileList = [];
       this.disks.filter(item => {
         item.isSelect = false;
       });
       disk.isSelect = true;
+      this.currPath = disk.name;
       this.renderFileList(disk.name);
+    },
+    toggleLogout() {
+      this.isShowLogout = !this.isShowLogout;
+    },
+    toggleSelect(file) {
+      file.isSelect = !file.isSelect;
+      if (file.isSelect) {
+        this.selectFileList.push(file);
+      } else {
+        this.selectFileList = this.selectFileList.filter(item => {
+          return item.name != file.name;
+        });
+      }
+      if (this.selectFileList.length < this.fileList.length) {
+        this.isAllSelect = false;
+      } else {
+        this.isAllSelect = true;
+      }
+    },
+    toggleAllSelect() {
+      this.isAllSelect = !this.isAllSelect;
+      this.fileList.map(item => {
+        item.isSelect = this.isAllSelect;
+      });
+      if (this.isAllSelect) {
+        this.selectFileList = this.fileList;
+      } else {
+        this.selectFileList = [];
+      }
+    },
+    goNextFolder(file) {
+      if (file.type != "type-folder") {
+        return false;
+      }
+      this.currPath =
+        this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+      this.renderFileList(this.currPath);
     }
   }
 };

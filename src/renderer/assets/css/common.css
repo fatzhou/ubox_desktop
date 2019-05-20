@@ -436,6 +436,7 @@ a {
 	line-height: 44px;
 	position: absolute;
 	bottom: -44px;
+	cursor: pointer;
 }
 
 .header-box .username.active .label {
@@ -473,6 +474,7 @@ a {
 	position: relative;
 	padding: 17px 0;
 	color: rgba(255, 255, 255, 0.5);
+	cursor: pointer;
 }
 
 .body-box .left-box ul li.active {
