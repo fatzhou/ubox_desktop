@@ -1,8 +1,9 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import Common from '../common';
 import path from 'path';
+
 const { dialog } = require('electron')
 /**
  * Set `__static` path to static files in production
@@ -78,6 +79,32 @@ class ElectronicUbbey {
 
 	};
 
+	setMenu() {
+		let self = this;
+		// Create the Application's main menu
+		var template = [{
+			label: "Application",
+			submenu: [
+				{ label: "About Application", selector: "orderFrontStandardAboutPanel:" },
+				{ type: "separator" },
+				{ label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
+			]
+		}, {
+			label: "Edit",
+			submenu: [
+				{ label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{ label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+				{ type: "separator" },
+				{ label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+				{ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+				{ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+				{ label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+			]
+		}
+		];
+
+		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+	}
 
 	createMainWindow() {
 		var self = this;
@@ -97,12 +124,13 @@ class ElectronicUbbey {
 			titleBarStyle: 'hidden',
 			webPreferences: {
 				nodeIntegration: true,
-				preload: path.join(__dirname, 'renderer/components/ListPage.vue')
+				// devTools: false,
 			}
 			// titlebarAppearsTransparent: 'YES'
 		});
 		this.mainWindow.loadURL(loginURL);
-		// this.mainWindow.webContents.openDevTools();
+		this.setMenu();
+		this.mainWindow.webContents.closeDevTools();
 		this.mainWindow.on('ready-to-show', function () {
 			self.mainWindow.show();
 			self.mainWindow.focus();
