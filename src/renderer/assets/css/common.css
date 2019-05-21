@@ -584,7 +584,7 @@ a {
 .path p {
 	overflow-x: scroll;
 	white-space: nowrap;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
     height: 36px;
 }
 
@@ -597,9 +597,9 @@ a {
 	background-size: 6px auto;
 	background-position-x: calc(100% - 5px);
 	cursor: pointer;
-	max-width: 130px;
+	/* max-width: 130px;
 	text-overflow: ellipsis;
-	overflow: hidden;
+	overflow: hidden; */
 }
 
 

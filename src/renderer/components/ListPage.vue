@@ -2,8 +2,8 @@
   <div class="main-list-box">
     <div class="header-box">
       <div class="option-btn">
-        <span class="back-btn" ></span>
-        <span class="next-btn" ></span>
+        <span class="back-btn" :class="currPathList.length >= 2 ? '' : 'active'" @click="goBack()"></span>
+        <span class="next-btn active" ></span>
       </div>
       <div class="download-btn" v-if="selectFileList.length != 0" @click="downloadAllFiles()">Download</div>
       <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
@@ -35,7 +35,7 @@
         <div class="path">
           <p>
             <span v-for="path in currPathList" :key="path" @click="changePath(path)">
-              {{ path }}
+              {{ path | pathName }}
               <em></em>
             </span>
           </p>
@@ -93,6 +93,19 @@ export default {
       currPathList: [],
       disk: {}
     };
+  },
+  filters:{
+    pathName: function (path) {
+      if (!path) return ''
+      path = path.toString();
+      if(path.length > 32) {
+        return path.substr(0,15) + '...' + path.substr(-15,15);
+      } else if (path.length > 16 && path.length < 32){
+        return path.substr(0,15) + '...'
+      } else {
+        return path
+      }
+    }
   },
   computed: {
     isShowToast() {
@@ -408,6 +421,9 @@ export default {
         this.initCurrPath();
     },
     changePath(path) {
+      if(this.currPathList.indexOf(path) > -1 && this.currPathList.indexOf(path) == this.currPathList.length - 1){
+        return false
+      }
         if(this.currPathList.indexOf(path) > -1) {
             this.currPath = '';
             let pathList = [];
@@ -424,6 +440,12 @@ export default {
     initCurrPath() {
         this.currPathList = this.currPath.split('\\');
         this.currPathList[0] = this.disk.label;
+    },
+    goBack() {
+      if(this.currPathList.length >= 2) {
+        let path = this.currPathList[this.currPathList.length - 2];
+        this.changePath(path);
+      }
     }
   }
 };
