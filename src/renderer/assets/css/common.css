@@ -29,6 +29,7 @@ a {
 
 .button {
     -webkit-app-region: no-drag;
+    -webkit-user-select: none;
     cursor: pointer;
 }
 
