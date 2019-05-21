@@ -473,7 +473,7 @@ a {
     left: 0;
     width: 190px;
     height: calc(100% - 44px);
-    overflow-y: scroll;
+    overflow-y: hidden;
     border-bottom: 1px solid #302F34;
 }
 
@@ -598,6 +598,9 @@ a {
     /* overflow-y: hidden; */
     height: 36px;
 }
+.path p::-webkit-scrollbar {
+    display: none;
+}
 
 .path span {
 	display: inline-block;
@@ -626,6 +629,9 @@ a {
 .file-list-box ul {
     height: calc(100% - 32px);
     overflow-y: scroll;
+}
+.file-list-box ul::-webkit-scrollbar {
+    display: none;
 }
 
 .file-title {
