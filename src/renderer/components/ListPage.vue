@@ -158,11 +158,11 @@ export default {
     },
     downloadAllFiles() {
       this.selectFileList.map(item => {
-        if(item.type != 'type-folder') {
-          console.log(' +++++ ' + item.name)
-          this.downloadFileToLocal(item.name); 
+        if (item.type != "type-folder") {
+          console.log(" +++++ " + item.name);
+          this.downloadFileToLocal(item.name);
         }
-      })
+      });
       this.selectFileList = [];
       this.toggleAllSelect();
     },
@@ -328,22 +328,22 @@ export default {
     },
 
     transferDate(time) {
-        //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
-        var date = new Date(time);
-        var month = date.getMonth() + 1;
-        var split = "-";
-        var needHours = true;
-        var Y = date.getFullYear(),
-            M = ("00" + month).slice(-2),
-            D = ("00" + date.getDate()).slice(-2),
-            h = ("00" + date.getHours()).slice(-2),
-            m = ("00" + date.getMinutes()).slice(-2),
-            s = ("00" + date.getSeconds()).slice(-2);
-        var hours = " " + [h, m, s].join(":");
-        if (needHours == false) {
-            hours = "";
-        }
-        return [Y, M, D].join(split) + hours;
+      //TODO: 根据时间戳，计算以下时间类型 2019-01-01 11:01:02
+      var date = new Date(time);
+      var month = date.getMonth() + 1;
+      var split = "-";
+      var needHours = true;
+      var Y = date.getFullYear(),
+        M = ("00" + month).slice(-2),
+        D = ("00" + date.getDate()).slice(-2),
+        h = ("00" + date.getHours()).slice(-2),
+        m = ("00" + date.getMinutes()).slice(-2),
+        s = ("00" + date.getSeconds()).slice(-2);
+      var hours = " " + [h, m, s].join(":");
+      if (needHours == false) {
+        hours = "";
+      }
+      return [Y, M, D].join(split) + hours;
     },
     logout() {
       let location = this.box.URLBase;
@@ -367,58 +367,59 @@ export default {
         });
     },
     changeDisk(disk) {
-        this.disk = disk;
-        if (disk.isSelect) {
-            return false;
-        }
-        this.selectFileList = [];
-        this.fileList = [];
-        this.disks.filter(item => {
-            item.isSelect = false;
-        });
-        disk.isSelect = true;
-        this.currPath = disk.name;
-        this.initCurrPath();
-        this.renderFileList(disk.name);
+      this.disk = disk;
+      if (disk.isSelect) {
+        return false;
+      }
+      this.selectFileList = [];
+      this.fileList = [];
+      this.disks.filter(item => {
+        item.isSelect = false;
+      });
+      disk.isSelect = true;
+      this.currPath = disk.name;
+      this.initCurrPath();
+      this.renderFileList(disk.name);
     },
     toggleLogout() {
-        this.isShowLogout = !this.isShowLogout;
+      this.isShowLogout = !this.isShowLogout;
     },
     toggleSelect(file) {
-        file.isSelect = !file.isSelect;
-        if (file.isSelect) {
-            this.selectFileList.push(file);
-        } else {
-            this.selectFileList = this.selectFileList.filter(item => {
-            return item.name != file.name;
-            });
-        }
-        if (this.selectFileList.length < this.fileList.length) {
-            this.isAllSelect = false;
-        } else {
-            this.isAllSelect = true;
-        }
+      file.isSelect = !file.isSelect;
+      if (file.isSelect) {
+        this.selectFileList.push(file);
+      } else {
+        this.selectFileList = this.selectFileList.filter(item => {
+          return item.name != file.name;
+        });
+      }
+      if (this.selectFileList.length < this.fileList.length) {
+        this.isAllSelect = false;
+      } else {
+        this.isAllSelect = true;
+      }
     },
     toggleAllSelect() {
-        this.isAllSelect = !this.isAllSelect;
-        this.fileList.map(item => {
-            item.isSelect = this.isAllSelect;
-        });
-        if (this.isAllSelect) {
-            this.selectFileList = this.fileList;
-        } else {
-            this.selectFileList = [];
-        }
+      this.isAllSelect = !this.isAllSelect;
+      this.fileList.map(item => {
+        item.isSelect = this.isAllSelect;
+      });
+      if (this.isAllSelect) {
+        this.selectFileList = this.fileList;
+      } else {
+        this.selectFileList = [];
+      }
     },
     goNextFolder(file) {
-        if (file.type != "type-folder") {
-            return false;
-        }
-        this.currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
-        this.renderFileList(this.currPath);
-        this.isAllSelect = false;
-        this.selectFileList = [];
-        this.initCurrPath();
+      if (file.type != "type-folder") {
+        return false;
+      }
+      this.currPath =
+        this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+      this.renderFileList(this.currPath);
+      this.isAllSelect = false;
+      this.selectFileList = [];
+      this.initCurrPath();
     },
     changePath(path) {
       if(this.currPathList.indexOf(path) > -1 && this.currPathList.indexOf(path) == this.currPathList.length - 1){
