@@ -20,7 +20,7 @@
           <li v-on:click="changeDisk(disk)" :class="disk.isSelect ? 'active' : ''" v-for="disk in disks" :key="disk.label">
             <div class="img-div"></div>
             <div class="diskinfo-div">
-              <p class="disk-name">{{ disk.label }}</p>
+              <p class="disk-name">{{ disk.label | pathName }}</p>
               <p class="disk-info">{{ disk.used }} GB/{{ disk.size }} GB</p>
             </div>
           </li>
@@ -332,6 +332,9 @@ export default {
       }
       if (/^(zip)$/.test(suffix)) {
         return "type-zip";
+      }
+      if (/^(torrent)$/.test(suffix)) {
+        return "type-bt";
       }
       return "file-name";
     },

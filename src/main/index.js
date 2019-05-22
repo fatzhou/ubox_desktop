@@ -90,7 +90,7 @@ class ElectronicUbbey {
 				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
 				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
 				{ type: "separator" },
-				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); },
+				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); }}
 				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {
@@ -108,7 +108,7 @@ class ElectronicUbbey {
 			submenu: [
 				{ label: "最小化", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 				{ label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "cut:" ,role: 'close'},
 			]
 		}, {
 			label: "帮助",
