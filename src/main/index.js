@@ -3,6 +3,8 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import Common from '../common';
 import path from 'path';
+const { shell } = require('electron') // deconstructing assignment
+
 // const LNDB = require('lndb')
 // const db = new LNDB('your/path')
 // 初始类型
@@ -106,47 +108,68 @@ class ElectronicUbbey {
 		var template = [{
 			label: "应用",
 			submenu: [
-				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "orderFrontStandardAboutPanel:" },
-				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ type: "separator" },
-				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); }}
+				{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
+				{
+					label: "设置", accelerator: "CmdOrCtrl+W", click: function() {
+						//TODO: 显示设置对话框
+					}
+				},
+				{
+					label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
+						//TODO
+					}
+				},
+				{ label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); } },
 				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {
 			label: "编辑",
 			submenu: [
-				{ label: "全选", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 				{
-					label: "下载", accelerator: "Shift+CmdOrCtrl+Z", function() {
-
+					label: "全选", accelerator: "CmdOrCtrl+A", click: function () {
+						//选中所有
+					}
+				},
+				{
+					label: "下载", accelerator: "Shift+CmdOrCtrl+D", function() {
+						//下载选中文件
+					}
+				},
+				{
+					label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", function() {
+						//设置下载文件夹
+						self.selectDirectory();
 					}
 				},
 				{ type: "separator" },
-				{ label: "删除", accelerator: "CmdOrCtrl+X", selector: "cut:" },
 				{
-					label: "刷新", accelerator: "CmdOrCtrl+C", click: function () {
-
+					label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
+						//刷新列表
 					}
 				},
-				{ label: "打开下载文件夹", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+				{
+					label: "打开下载文件夹", accelerator: "CmdOrCtrl+O", click: function () {
+						shell.openItem(self.shareObjects.downloadPath); //打开下载文件夹
+					}
+				},
 			]
 		}, {
 			label: "窗口",
 			submenu: [
-				{ label: "最小化", accelerator: "CmdOrCtrl+Z", role: "minimize" },
+				{ label: "最小化", accelerator: "CmdOrCtrl+M", role: "minimize" },
 				{
 					label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
 
 					}
-				},
-				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "close:" },
+				}
 			]
 		}, {
 			label: "帮助",
 			submenu: [
 				{
-					label: "使用帮助", accelerator: "CmdOrCtrl+Z", click() { require('electron').shell.openExternalSync('https://electronjs.org') }
+					label: "使用帮助", accelerator: "CmdOrCtrl+H", click() {
+						shell.openExternalSync('https://ubbey.org');
+					}
 				},
 			]
 		}
