@@ -8,11 +8,11 @@
             <label for="username" class="form-input mar-btm-20 mar-top-45">
           <input type="text" value="1@qq.com" id="username" :class="usernameInputClass" v-on:blur="testUsername()" v-on:input="usernameChange" v-model="username">
           <span class="label" id="username-wrap" :class="usernameActive">Email</span>
-        </label>
+          </label>
             <label for="password" class="form-input">
           <input type="password" value="A123456789" id="password" v-on:input="passwordChange" v-model="password">
           <span class="label" id="password-wrap" :class="passwordActive">Password</span>
-        </label>
+          </label>
             <div class="login-btn" id="submit-btn" :class="clickSubmitClass" v-on:click="submitForm()">
                 <span class="loading"></span>Log in
             </div>
