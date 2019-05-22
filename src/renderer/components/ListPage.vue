@@ -256,7 +256,7 @@ export default {
         console.log(content);
         window.content = content; //For debug
 
-        let fileList = [];
+        let fileList = [], folderList = [];
         content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
             return;
@@ -274,16 +274,25 @@ export default {
             item.FileAttributes == 16
               ? "type-folder"
               : self.getFileType(item.Filename);
-
-          fileList.push({
-            isSelect: false,
-            name: item.Filename,
-            type: type,
-            size: 0,
-            time: lastWriteTime
-          });
+          if(item.FileAttributes == 16) {
+            folderList.push({
+              isSelect: false,
+              name: item.Filename,
+              type: type,
+              size: 0,
+              time: lastWriteTime
+            });
+          } else {
+            fileList.push({
+              isSelect: false,
+              name: item.Filename,
+              type: type,
+              size: 0,
+              time: lastWriteTime
+            });
+          }
         });
-        self.fileList = fileList;
+        self.fileList = folderList.concat(fileList);
       });
     },
     getFileType(name) {
