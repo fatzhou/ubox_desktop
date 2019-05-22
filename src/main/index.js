@@ -3,7 +3,10 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import Common from '../common';
 import path from 'path';
-
+const LNDB = require('lndb')
+const db = new LNDB('your/path')
+// 初始类型
+const pg = db.init('page')
 const { dialog } = require('electron')
 /**
  * Set `__static` path to static files in production
@@ -24,11 +27,13 @@ const listURL = process.env.NODE_ENV === 'development'
 class ElectronicUbbey {
 	constructor() {
 		this.mainWindow = null;
+		let downloadPath = pg.get('downloadPath');
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
 			loginInfo: null,
-			cookie: ''
+			cookie: '',
+			downloadPath: downloadPath || process.env.HOME + "/Downloads"
 		}
 	}
 
@@ -75,9 +80,21 @@ class ElectronicUbbey {
 			// event.sender.send(this.shareObjects[key]);
 			event.returnValue = this.shareObjects[key];
 		})
-
-
 	};
+
+	selectDirectory() {
+		console.log("++++++++++++")
+		let path = dialog.showOpenDialog(this.mainWindow, {
+			properties: ['openDirectory']
+		});
+		if (path) {
+			console.log("用户已更新下载文件夹:" + path);
+			this.shareObjects.downloadPath = path;
+			pg.set('downloadPath', path);
+		} else {
+			console.log("用户取消了下载文件夹变更");
+		}
+	}
 
 	setMenu() {
 		let self = this;
@@ -87,6 +104,12 @@ class ElectronicUbbey {
 			submenu: [
 				{ label: "About Application", selector: "orderFrontStandardAboutPanel:" },
 				{ type: "separator" },
+				{
+					label: "选择文件夹",
+					click: function () {
+						self.selectDirectory();
+					},
+				},
 				{ label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
 			]
 		}, {
@@ -135,6 +158,7 @@ class ElectronicUbbey {
 			self.mainWindow.show();
 			self.mainWindow.focus();
 		});
+
 	}
 }
 
