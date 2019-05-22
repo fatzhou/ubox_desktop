@@ -1,12 +1,12 @@
 <template>
-  <div id="app" class="app">
-    <router-view></router-view>
-  </div>
+    <div id="app" class="app">
+        <router-view></router-view>
+    </div>
 </template>
 
 <script>
 export default {
-  name: "ubox_desktop"
+    name: "ubox_desktop"
 };
 </script>
 
@@ -14,7 +14,7 @@ export default {
 /* CSS */
 @import "./assets/css/common.css";
 .app {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 </style>
