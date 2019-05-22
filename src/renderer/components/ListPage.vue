@@ -21,7 +21,7 @@
             <div class="img-div"></div>
             <div class="diskinfo-div">
               <p class="disk-name">{{ disk.label }}</p>
-              <p class="disk-info">{{ disk.used }} GB/{{ disk.size }} GB</p>
+              <p class="disk-info">{{ disk.used | fileSize }} GB/{{ disk.size | fileSize }} GB</p>
             </div>
           </li>
         </ul>
@@ -51,7 +51,7 @@
 			  <li class="li-box" v-for="file in fileList" v-bind:key="file.name"  @click="toggleSelect(file)">  
 				<div class="fl file-checkbox" :class="file.isSelect ? 'select' : ''"></div>
 				<div class="fl file-name "  :class="file.type"><a href="javascript:void(0)" @click.stop @click="goNextFolder(file)">{{ file.name }}</a><span v-if="file.type != 'type-folder'" @click.stop="downloadFileToLocal(file.name)" class="download-icon"></span></div>
-				<div class="fl file-size">{{ file.size }}</div>
+				<div class="fl file-size">{{ file.size | fileSize }}</div>
 				<div class="fl file-time">{{ file.time }}</div>                      
 			</li>
 		  </ul>
@@ -72,6 +72,10 @@ import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 import fs from "fs";
+import BigInt from "@marsaud/smb2/lib/tools/BigInt";
+let K = 1024,
+  M = 1024 * 1024,
+  G = K * M;
 
 export default {
   name: "list",
@@ -104,6 +108,21 @@ export default {
         return path.substr(0, 15) + "...";
       } else {
         return path;
+      }
+    },
+    fileSize: function(size) {
+      if (!size) {
+        return "--";
+      } else {
+        if (size < K) {
+          return size + "B";
+        } else if (size < M) {
+          return (size / K).toFixed(2) + "KB";
+        } else if (size < G) {
+          return (size / M).toFixed(2) + "MB";
+        } else {
+          return (size / G).toFixed(2) + "GB";
+        }
       }
     }
   },
@@ -168,7 +187,8 @@ export default {
     },
     downloadFileToLocal(name) {
       let remotePath = this.currPath + "\\" + name,
-        localPath = ipcRenderer.sendSync("get-global", "downloadPath") + "/" + name;
+        localPath =
+          ipcRenderer.sendSync("get-global", "downloadPath") + "/" + name;
       this.downloadFile(remotePath, localPath);
     },
     downloadFile(remotePath, localPath) {
@@ -213,29 +233,32 @@ export default {
             if (res.err_no == 0) {
               let disks = [];
               res.disks = res.disks || [];
-              content.forEach(item => {
-                let disk = res.disks.find(disk => {
-                  return disk.uuid == item.Filename;
+
+              res.disks.forEach(item => {
+                let cont = content.find(disk => {
+                  return item.uuid == disk.Filename;
                 });
+                if (!cont) {
+                  return false;
+                }
                 let label =
-                  disk && disk.label
-                    ? disk.label
-                    : "Disk " +
-                      String.fromCharCode("A".charCodeAt(0) + diskCount++);
+                  item.label ||
+                  "Disk " +
+                    String.fromCharCode("A".charCodeAt(0) + diskCount++);
                 disks.push({
                   isSelect: false,
-                  name: item.Filename,
+                  name: cont.Filename,
                   label: label,
-                  size: this.computeGB(disk && disk.size),
-                  used: this.computeGB(disk && disk.used)
+                  size: item.size,
+                  used: item.used
                 });
                 if (disks[0]) {
                   disks[0].isSelect = true;
                   this.initCurrPath();
                   this.disk = disks[0];
                 }
+                this.disks = disks;
               });
-              this.disks = disks;
             }
           });
       });
@@ -256,7 +279,8 @@ export default {
         console.log(content);
         window.content = content; //For debug
 
-        let fileList = [], folderList = [];
+        let fileList = [],
+          folderList = [];
         content.forEach(item => {
           if (/\.uploading$/g.test(item.Filename)) {
             return;
@@ -274,22 +298,18 @@ export default {
             item.FileAttributes == 16
               ? "type-folder"
               : self.getFileType(item.Filename);
-          if(item.FileAttributes == 16) {
-            folderList.push({
-              isSelect: false,
-              name: item.Filename,
-              type: type,
-              size: 0,
-              time: lastWriteTime
-            });
+          let file = {
+            isSelect: false,
+            name: item.Filename,
+            type: type,
+            size: BigInt.fromBuffer(item.EndofFile).toNumber(),
+            time: lastWriteTime
+          };
+          if (item.FileAttributes == 16) {
+            folderList.push(file);
           } else {
-            fileList.push({
-              isSelect: false,
-              name: item.Filename,
-              type: type,
-              size: 0,
-              time: lastWriteTime
-            });
+            //该属性可以用于检测MIME
+            fileList.push(file);
           }
         });
         self.fileList = folderList.concat(fileList);

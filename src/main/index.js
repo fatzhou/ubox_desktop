@@ -3,10 +3,10 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import Common from '../common';
 import path from 'path';
-const LNDB = require('lndb')
-const db = new LNDB('your/path')
+// const LNDB = require('lndb')
+// const db = new LNDB('your/path')
 // 初始类型
-const pg = db.init('page')
+// const pg = db.init('page')
 const { dialog } = require('electron')
 /**
  * Set `__static` path to static files in production
@@ -27,7 +27,7 @@ const listURL = process.env.NODE_ENV === 'development'
 class ElectronicUbbey {
 	constructor() {
 		this.mainWindow = null;
-		let downloadPath = pg.get('downloadPath');
+		let downloadPath = ''//pg.get('downloadPath');
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
@@ -90,7 +90,7 @@ class ElectronicUbbey {
 		if (path) {
 			console.log("用户已更新下载文件夹:" + path);
 			this.shareObjects.downloadPath = path;
-			pg.set('downloadPath', path);
+			// pg.set('downloadPath', path);
 		} else {
 			console.log("用户取消了下载文件夹变更");
 		}
@@ -100,37 +100,49 @@ class ElectronicUbbey {
 		let self = this;
 		// Create the Application's main menu
 		var template = [{
-			label: "Application",
+			label: "应用",
 			submenu: [
-				{ label: "About Application", selector: "orderFrontStandardAboutPanel:" },
-				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "orderFrontStandardAboutPanel:" },
 				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ type: "separator" },
-				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); },
+				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); } },
 				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {
-			label: "Edit",
+			label: "编辑",
 			submenu: [
 				{ label: "全选", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ label: "下载", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+				{
+					label: "下载", accelerator: "Shift+CmdOrCtrl+Z", function() {
+
+					}
+				},
 				{ type: "separator" },
 				{ label: "删除", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-				{ label: "刷新", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+				{
+					label: "刷新", accelerator: "CmdOrCtrl+C", click: function () {
+
+					}
+				},
 				{ label: "打开下载文件夹", accelerator: "CmdOrCtrl+V", selector: "paste:" },
 			]
 		}, {
 			label: "窗口",
 			submenu: [
-				{ label: "最小化", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+				{ label: "最小化", accelerator: "CmdOrCtrl+Z", role: "minimize" },
+				{
+					label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
+
+					}
+				},
+				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "close:" },
 			]
 		}, {
 			label: "帮助",
 			submenu: [
-				{ label: "使用帮助", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{
+					label: "使用帮助", accelerator: "CmdOrCtrl+Z", click() { require('electron').shell.openExternalSync('https://electronjs.org') }
+				},
 			]
 		}
 		];
