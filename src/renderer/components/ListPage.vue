@@ -94,16 +94,16 @@ export default {
       disk: {}
     };
   },
-  filters:{
-    pathName: function (path) {
-      if (!path) return ''
+  filters: {
+    pathName: function(path) {
+      if (!path) return "";
       path = path.toString();
-      if(path.length > 32) {
-        return path.substr(0,15) + '...' + path.substr(-15,15);
-      } else if (path.length > 16 && path.length < 32){
-        return path.substr(0,15) + '...'
+      if (path.length > 32) {
+        return path.substr(0, 15) + "..." + path.substr(-15, 15);
+      } else if (path.length > 16 && path.length < 32) {
+        return path.substr(0, 15) + "...";
       } else {
-        return path
+        return path;
       }
     }
   },
@@ -168,7 +168,7 @@ export default {
     },
     downloadFileToLocal(name) {
       let remotePath = this.currPath + "\\" + name,
-        localPath = process.env.HOME + "/Downloads/" + name;
+        localPath = ipcRenderer.sendSync("get-global", "downloadPath") + "/" + name;
       this.downloadFile(remotePath, localPath);
     },
     downloadFile(remotePath, localPath) {
@@ -434,28 +434,33 @@ export default {
       this.initCurrPath();
     },
     changePath(path) {
-      if(this.currPathList.indexOf(path) > -1 && this.currPathList.indexOf(path) == this.currPathList.length - 1){
-        return false
+      if (
+        this.currPathList.indexOf(path) > -1 &&
+        this.currPathList.indexOf(path) == this.currPathList.length - 1
+      ) {
+        return false;
       }
-        if(this.currPathList.indexOf(path) > -1) {
-            this.currPath = '';
-            let pathList = [];
-            pathList = this.currPathList.filter(item => {
-                return this.currPathList.indexOf(item) <= this.currPathList.indexOf(path)
-            })
-            pathList[0] = this.disk.name;
-            this.currPath = pathList.join('\\');
-            this.initCurrPath();
-        }
-        console.log(this.currPath);
-        this.renderFileList(this.currPath);
+      if (this.currPathList.indexOf(path) > -1) {
+        this.currPath = "";
+        let pathList = [];
+        pathList = this.currPathList.filter(item => {
+          return (
+            this.currPathList.indexOf(item) <= this.currPathList.indexOf(path)
+          );
+        });
+        pathList[0] = this.disk.name;
+        this.currPath = pathList.join("\\");
+        this.initCurrPath();
+      }
+      console.log(this.currPath);
+      this.renderFileList(this.currPath);
     },
     initCurrPath() {
-        this.currPathList = this.currPath.split('\\');
-        this.currPathList[0] = this.disk.label;
+      this.currPathList = this.currPath.split("\\");
+      this.currPathList[0] = this.disk.label;
     },
     goBack() {
-      if(this.currPathList.length >= 2) {
+      if (this.currPathList.length >= 2) {
         let path = this.currPathList[this.currPathList.length - 2];
         this.changePath(path);
       }
