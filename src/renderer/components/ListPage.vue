@@ -174,6 +174,7 @@ export default {
     mounted() {
         this.initGlobalInfo();
         this.initSamba();
+        this.init();
     },
     methods: {
         initGlobalInfo() {
@@ -476,8 +477,8 @@ export default {
                 this.isAllSelect = true;
             }
         },
-        toggleAllSelect() {
-            this.isAllSelect = !this.isAllSelect;
+        toggleAllSelect(isSelect = null) {
+            this.isAllSelect = isSelect || !this.isAllSelect;
             this.fileList.map(item => {
                 item.isSelect = this.isAllSelect;
             });
@@ -491,8 +492,7 @@ export default {
             if (file.type != "type-folder") {
                 return false;
             }
-            this.currPath =
-                this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+            this.currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
             this.renderFileList(this.currPath);
             this.isAllSelect = false;
             this.selectFileList = [];
@@ -530,6 +530,19 @@ export default {
                 let path = this.currPathList[this.currPathList.length - 2];
                 this.changePath(path);
             }
+        },
+        init() {
+            ipcRenderer.on('refresh-list', () => {
+                let path = this.currPathList[this.currPathList.length - 1];
+                this.changePath(path);
+            });
+            ipcRenderer.on('select-all', () => {
+                this.isAllSelect = false;
+                this.toggleAllSelect(true);
+            });
+            ipcRenderer.on('download-all', () => {
+                this.downloadAllFiles();
+            });
         }
     }
 };

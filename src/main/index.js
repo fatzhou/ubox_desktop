@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, ipcRenderer } from 'electron'
 import Common from '../common';
 import path from 'path';
 const { shell } = require('electron') // deconstructing assignment
@@ -67,15 +67,11 @@ class ElectronicUbbey {
 
 		ipcMain.on('login-finished', (event) => {
 			//登录流程结束，进入列表页
-			this.mainWindow.hide();
-			this.listWindow.show();
-			// this.mainWindow.loadURL(listURL);
+			this.mainWindow.loadURL(listURL);
 		});
 		ipcMain.on('logout-finished', (event) => {
 			//登录流程结束，进入列表页
-			// this.mainWindow.loadURL(loginURL);
-			this.listWindow.hide();
-			this.mainWindow.show();
+			this.mainWindow.loadURL(loginURL);
 		});
 
 		ipcMain.on('update-global', (event, key, value) => {
@@ -106,17 +102,19 @@ class ElectronicUbbey {
 		let self = this;
 		// Create the Application's main menu
 		var template = [{
-			label: "应用",
+			label: "应用111",
 			submenu: [
 				{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
 				{
 					label: "设置", accelerator: "CmdOrCtrl+W", click: function() {
 						//TODO: 显示设置对话框
+
 					}
 				},
 				{
 					label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
 						//TODO
+
 					}
 				},
 				{ label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); } },
@@ -128,11 +126,13 @@ class ElectronicUbbey {
 				{
 					label: "全选", accelerator: "CmdOrCtrl+A", click: function () {
 						//选中所有
+						self.mainWindow.webContents.send("select-all")
 					}
 				},
 				{
 					label: "下载", accelerator: "Shift+CmdOrCtrl+D", function() {
 						//下载选中文件
+						self.mainWindow.webContents.send("download-all");
 					}
 				},
 				{
@@ -145,6 +145,7 @@ class ElectronicUbbey {
 				{
 					label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
 						//刷新列表
+						self.mainWindow.webContents.send("refresh-list");
 					}
 				},
 				{
@@ -191,28 +192,7 @@ class ElectronicUbbey {
 			autoHideMenuBar: true,
 			// fullscreen: true,
 			// alwaysOnTop: true,
-			backgroundColor: '#000',
-			icon: 'assets/icon.png',
-			titleBarStyle: 'hidden',
-			webPreferences: {
-				nodeIntegration: true,
-				// devTools: false,
-			}
-			// titlebarAppearsTransparent: 'YES'
-		});
-		this.listWindow = new BrowserWindow({
-			width: Common.WINDOW_SIZE.width,
-			height: Common.WINDOW_SIZE.height,
-			title: Common.FILES_TITLE,
-			resizable: true,
-			center: true,
-			show: false,
-			frame: false,
-			movable: true,
-			autoHideMenuBar: true,
-			// fullscreen: true,
-			// alwaysOnTop: true,
-			backgroundColor: '#000',
+			backgroundColor: '#302F34',
 			icon: 'assets/icon.png',
 			titleBarStyle: 'hidden',
 			webPreferences: {
@@ -222,7 +202,6 @@ class ElectronicUbbey {
 			// titlebarAppearsTransparent: 'YES'
 		});
 		this.mainWindow.loadURL(loginURL);
-		this.listWindow.loadURL(listURL);
 		this.setMenu();
 		this.mainWindow.webContents.closeDevTools();
 		this.mainWindow.on('ready-to-show', function () {
