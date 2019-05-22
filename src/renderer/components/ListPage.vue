@@ -137,7 +137,6 @@ export default {
   },
   mounted() {
     this.initGlobalInfo();
-    this.initSamba();
   },
   methods: {
     initGlobalInfo() {
@@ -145,6 +144,7 @@ export default {
       this.userInfo = ipcRenderer.sendSync("get-global", "userInfo");
       this.loginInfo = ipcRenderer.sendSync("get-global", "loginInfo");
       console.log(this.box, this.userInfo, this.loginInfo);
+      this.initSamba();
     },
     initSamba() {
       let location = this.box.URLBase;
@@ -395,6 +395,9 @@ export default {
             common.setBox(null);
             this.box = {};
             ipcRenderer.send("logout-finished");
+            ipcRenderer.send("update-global", "box", null);
+            ipcRenderer.send("update-global", "userInfo", null);
+            ipcRenderer.send("update-global", "loginInfo", null);
           }
         });
     },

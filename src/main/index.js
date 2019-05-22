@@ -65,11 +65,15 @@ class ElectronicUbbey {
 
 		ipcMain.on('login-finished', (event) => {
 			//登录流程结束，进入列表页
-			this.mainWindow.loadURL(listURL);
+			this.mainWindow.hide();
+			this.listWindow.show();
+			// this.mainWindow.loadURL(listURL);
 		});
 		ipcMain.on('logout-finished', (event) => {
 			//登录流程结束，进入列表页
-			this.mainWindow.loadURL(loginURL);
+			// this.mainWindow.loadURL(loginURL);
+			this.listWindow.hide();
+			this.mainWindow.show();
 		});
 
 		ipcMain.on('update-global', (event, key, value) => {
@@ -105,12 +109,8 @@ class ElectronicUbbey {
 				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "orderFrontStandardAboutPanel:" },
 				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-<<<<<<< HEAD
-				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); } },
-=======
 				{ type: "separator" },
 				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); }}
->>>>>>> cc4a21e92de40afdac3783a32c15fc6379d59e95
 				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {
@@ -168,6 +168,28 @@ class ElectronicUbbey {
 			autoHideMenuBar: true,
 			// fullscreen: true,
 			// alwaysOnTop: true,
+			backgroundColor: '#000',
+			icon: 'assets/icon.png',
+			titleBarStyle: 'hidden',
+			webPreferences: {
+				nodeIntegration: true,
+				// devTools: false,
+			}
+			// titlebarAppearsTransparent: 'YES'
+		});
+		this.listWindow = new BrowserWindow({
+			width: Common.WINDOW_SIZE.width,
+			height: Common.WINDOW_SIZE.height,
+			title: Common.FILES_TITLE,
+			resizable: true,
+			center: true,
+			show: false,
+			frame: false,
+			movable: true,
+			autoHideMenuBar: true,
+			// fullscreen: true,
+			// alwaysOnTop: true,
+			backgroundColor: '#000',
 			icon: 'assets/icon.png',
 			titleBarStyle: 'hidden',
 			webPreferences: {
@@ -177,6 +199,7 @@ class ElectronicUbbey {
 			// titlebarAppearsTransparent: 'YES'
 		});
 		this.mainWindow.loadURL(loginURL);
+		this.listWindow.loadURL(listURL);
 		this.setMenu();
 		this.mainWindow.webContents.closeDevTools();
 		this.mainWindow.on('ready-to-show', function () {

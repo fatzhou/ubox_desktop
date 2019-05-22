@@ -95,7 +95,7 @@ var common = {
 					});
 					resolve(device);
 				});
-				// resolve(null);
+				resolve(null);
 			}, 8000);
 
 			upnp.on('added', (device) => {
