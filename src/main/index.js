@@ -86,23 +86,37 @@ class ElectronicUbbey {
 			label: "Application",
 			submenu: [
 				{ label: "About Application", selector: "orderFrontStandardAboutPanel:" },
+				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
+				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
 				{ type: "separator" },
-				{ label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
+				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); },
+				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {
 			label: "Edit",
 			submenu: [
-				{ label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-				{ label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+				{ label: "全选", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{ label: "下载", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
 				{ type: "separator" },
-				{ label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-				{ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-				{ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-				{ label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+				{ label: "删除", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+				{ label: "刷新", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+				{ label: "打开下载文件夹", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+			]
+		}, {
+			label: "窗口",
+			submenu: [
+				{ label: "最小化", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+				{ label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+				{ label: "关闭", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+			]
+		}, {
+			label: "帮助",
+			submenu: [
+				{ label: "使用帮助", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 			]
 		}
 		];
-
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 	}
 
