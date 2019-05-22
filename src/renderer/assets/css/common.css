@@ -689,7 +689,7 @@ a {
 .file-name {
     width: calc(50% - 25px);
     padding-left: 32px;
-    background-image: url(../images/Defaulticon.svg);
+    background-image: url(../images/Default_icon.svg);
     background-position: 0 center;
     background-size: 22px auto;
     background-repeat: no-repeat;
@@ -730,41 +730,43 @@ a {
 }
 
 .type-folder {
-    background-image: url(../images/Foldericon.svg);
+    background-image: url(../images/Folder_icon.svg);
 }
 
 .type-ppt {
-    background-image: url(../images/Ppticon.svg);
+    background-image: url(../images/Ppt_icon.svg);
 }
 
 .type-pdf {
-    background-image: url(../images/Pdficon.svg);
+    background-image: url(../images/Pdf_icon.svg);
 }
 
 .type-xls {
-    background-image: url(../images/Xlsicon.svg);
+    background-image: url(../images/Xls_icon.svg);
 }
 
 .type-doc {
-    background-image: url(../images/Docicon.svg);
+    background-image: url(../images/Doc_icon.svg);
 }
 
 .type-music {
-    background-image: url(../images/Musicicon.svg);
+    background-image: url(../images/Music_icon.svg);
 }
 
 .type-txt {
-    background-image: url(../images/Txticon.svg);
+    background-image: url(../images/Txt_icon.svg);
 }
 
 .type-video {
-    background-image: url(../images/Videoicon.svg);
+    background-image: url(../images/Video_icon.svg);
 }
 
 .type-image {
-    background-image: url(../images/Imageicon.svg);
+    background-image: url(../images/Image_icon.svg);
 }
-
+.type-bt {
+    background-image: url(../images/Torrent_icon.svg);
+}
 .file-name.nobackground {
     padding-left: 0;
     background-image: none;

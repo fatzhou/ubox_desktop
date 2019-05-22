@@ -105,7 +105,12 @@ class ElectronicUbbey {
 				{ label: "关于", accelerator: "CmdOrCtrl+Z", selector: "orderFrontStandardAboutPanel:" },
 				{ label: "设置", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
 				{ label: "检查更新", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+<<<<<<< HEAD
 				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); } },
+=======
+				{ type: "separator" },
+				{ label: "退出", accelerator: "CmdOrCtrl+Z", click: function () { app.quit(); }}
+>>>>>>> cc4a21e92de40afdac3783a32c15fc6379d59e95
 				// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			]
 		}, {

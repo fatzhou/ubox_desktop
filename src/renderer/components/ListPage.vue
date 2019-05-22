@@ -353,6 +353,9 @@ export default {
       if (/^(zip)$/.test(suffix)) {
         return "type-zip";
       }
+      if (/^(torrent)$/.test(suffix)) {
+        return "type-bt";
+      }
       return "file-name";
     },
 
