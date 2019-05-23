@@ -103,15 +103,13 @@
 
 <script>
 const remote = require("electron").remote;
-const { ipcRenderer, app } = require("electron");
-const appName = app.getName();
+const { ipcRenderer } = require("electron");
 import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 import fs from "fs";
 import BigInt from "@marsaud/smb2/lib/tools/BigInt";
-const appPath = path.join(app.getPath("appData"), appName);
-console.log(appPath);
+
 let K = 1024,
     M = 1024 * 1024,
     G = K * M;
@@ -495,7 +493,8 @@ export default {
             if (file.type != "type-folder") {
                 return false;
             }
-            this.currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+            this.currPath =
+                this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
             this.renderFileList(this.currPath);
             this.isAllSelect = false;
             this.selectFileList = [];
@@ -535,15 +534,15 @@ export default {
             }
         },
         init() {
-            ipcRenderer.on('refresh-list', () => {
+            ipcRenderer.on("refresh-list", () => {
                 let path = this.currPathList[this.currPathList.length - 1];
                 this.changePath(path);
             });
-            ipcRenderer.on('select-all', () => {
+            ipcRenderer.on("select-all", () => {
                 this.isAllSelect = false;
                 this.toggleAllSelect(true);
             });
-            ipcRenderer.on('download-all', () => {
+            ipcRenderer.on("download-all", () => {
                 this.downloadAllFiles();
             });
         }

@@ -10,6 +10,11 @@ const { shell } = require('electron') // deconstructing assignment
 // 初始类型
 // const pg = db.init('page')
 const { dialog } = require('electron')
+
+const appName = app.getName();
+const appPath = path.join(app.getPath("appData"), appName);
+console.log(appPath);
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -52,7 +57,7 @@ class ElectronicUbbey {
 	initApp() {
 		app.on('ready', () => {
 			this.createMainWindow();
-			// this.createFilesWindow();
+			this.setMenu();
 		});
 
 		app.on('activate', () => {
@@ -102,11 +107,11 @@ class ElectronicUbbey {
 		let self = this;
 		// Create the Application's main menu
 		var template = [{
-			label: "应用111",
+			label: "应用",
 			submenu: [
 				{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
 				{
-					label: "设置", accelerator: "CmdOrCtrl+W", click: function() {
+					label: "设置", accelerator: "CmdOrCtrl+W", click: function () {
 						//TODO: 显示设置对话框
 
 					}
@@ -202,7 +207,6 @@ class ElectronicUbbey {
 			// titlebarAppearsTransparent: 'YES'
 		});
 		this.mainWindow.loadURL(loginURL);
-		this.setMenu();
 		this.mainWindow.webContents.closeDevTools();
 		this.mainWindow.on('ready-to-show', function () {
 			self.mainWindow.show();
