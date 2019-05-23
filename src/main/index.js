@@ -197,7 +197,7 @@ class ElectronicUbbey {
 			resizable: true,
 			center: true,
 			show: false,
-			frame: false,
+			frame: true,
 			movable: true,
 			autoHideMenuBar: true,
 			// fullscreen: true,

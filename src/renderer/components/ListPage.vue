@@ -220,7 +220,7 @@ export default {
                 }
             });
             this.selectFileList = [];
-            this.toggleAllSelect();
+            this.toggleAllSelect(0);
         },
         downloadFileToLocal(name) {
             let remotePath = this.currPath + "\\" + name,
@@ -478,7 +478,11 @@ export default {
             }
         },
         toggleAllSelect(isSelect = null) {
-            this.isAllSelect = isSelect || !this.isAllSelect;
+            if(isSelect == 0) {
+                this.isAllSelect = false;
+            } else {
+                this.isAllSelect = !this.isAllSelect;
+            }
             this.fileList.map(item => {
                 item.isSelect = this.isAllSelect;
             });
