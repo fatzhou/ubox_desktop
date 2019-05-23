@@ -88,12 +88,13 @@ var common = {
 			let timeout = setTimeout(() => {
 				console.log("超时结束.......");
 				upnp.stopDiscovery(() => {
-					var device_list = upnp.getActiveDeviceList();
-					console.log(device_list.length + ' devices (services) were found.');
-					let device = device_list.find(item => {
-						item.bindUserHash == unameHash
-					});
-					resolve(device);
+					console.log('stopDiscovery');
+					// var device_list = upnp.getActiveDeviceList();
+					// console.log(device_list.length + ' devices (services) were found.');
+					// let device = device_list.find(item => {
+					// 	item.bindUserHash == unameHash
+					// });
+					// resolve(device);
 				});
 				resolve(null);
 			}, 8000);

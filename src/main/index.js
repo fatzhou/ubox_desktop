@@ -10,6 +10,8 @@ const { shell } = require('electron') // deconstructing assignment
 // 初始类型
 // const pg = db.init('page')
 const { dialog } = require('electron')
+const { Tray } = require('electron')
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -101,20 +103,27 @@ class ElectronicUbbey {
 	setMenu() {
 		let self = this;
 		// Create the Application's main menu
-		var template = [{
-			label: "应用111",
+		var template = [
+			{
+			label: app.getName(),
 			submenu: [
 				{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
 				{
-					label: "设置", accelerator: "CmdOrCtrl+W", click: function() {
-						//TODO: 显示设置对话框
-
+					label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", click: function() {
+						console.log("------");
+						//设置下载文件夹
+						self.selectDirectory();
 					}
 				},
 				{
 					label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
 						//TODO
-
+						// const appIcon = new Tray('assets/images/icon.png');
+						
+						dialog.showMessageBox(self.mainWindow, {
+							title: "检查更新",
+							message: "您当前已经是最新版本"
+						});
 					}
 				},
 				{ label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); } },
@@ -135,12 +144,7 @@ class ElectronicUbbey {
 						self.mainWindow.webContents.send("download-all");
 					}
 				},
-				{
-					label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", function() {
-						//设置下载文件夹
-						self.selectDirectory();
-					}
-				},
+				
 				{ type: "separator" },
 				{
 					label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
@@ -160,7 +164,13 @@ class ElectronicUbbey {
 				{ label: "最小化", accelerator: "CmdOrCtrl+M", role: "minimize" },
 				{
 					label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
-
+						Common.ISMAX = !Common.ISMAX;
+						if(Common.ISMAX) {
+							self.mainWindow.maximize();
+						} else {
+							self.mainWindow.setSize(Common.WINDOW_SIZE.width, Common.WINDOW_SIZE.height);
+						}
+						self.mainWindow.center();
 					}
 				}
 			]
@@ -193,7 +203,6 @@ class ElectronicUbbey {
 			// fullscreen: true,
 			// alwaysOnTop: true,
 			backgroundColor: '#302F34',
-			icon: 'assets/icon.png',
 			titleBarStyle: 'hidden',
 			webPreferences: {
 				nodeIntegration: true,
@@ -208,6 +217,7 @@ class ElectronicUbbey {
 			self.mainWindow.show();
 			self.mainWindow.focus();
 		});
+
 
 	}
 }

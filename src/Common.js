@@ -6,6 +6,7 @@ Common.WINDOW_SIZE = {
 	width: 960,
 	height: 600
 }
+Common.ISMAX = false;
 
 Common.FILES_TITLE = 'My files';
 
