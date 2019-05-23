@@ -103,12 +103,15 @@
 
 <script>
 const remote = require("electron").remote;
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, app } = require("electron");
+const appName = app.getName();
 import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 import fs from "fs";
 import BigInt from "@marsaud/smb2/lib/tools/BigInt";
+const appPath = path.join(app.getPath("appData"), appName);
+console.log(appPath);
 let K = 1024,
     M = 1024 * 1024,
     G = K * M;
