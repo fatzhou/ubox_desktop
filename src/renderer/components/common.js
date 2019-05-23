@@ -103,11 +103,14 @@ var common = {
 				var bindUserHash = device.device.bindUserHash,
 					boxId = device.device.boxId;
 				if (bindUserHash == unameHash) {
-					resolve(device);
 					if (timeout) {
+						upnp.stopDiscovery(() => {
+							console.log('stop')
+						});
 						clearTimeout(timeout);
 						timeout = null;
 					}
+					resolve(device);
 				}
 			});
 		})
