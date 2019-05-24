@@ -70,7 +70,6 @@ export default {
     },
     computed: {
         isShowToast() {
-            console.log(this);
             return this.$store.state.Counter.isShowToast;
         },
         toastText() {
@@ -197,7 +196,7 @@ export default {
                     }
                 })
                 .catch(e => {
-                    console.log("登录失败.....");
+                    console.log("登录失败.....", e);
                     setTimeout(() => {
                         this.clickSubmitClass = "hide-load";
                         if (!e) {

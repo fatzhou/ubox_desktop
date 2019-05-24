@@ -108,7 +108,9 @@ import common from "./common";
 const SMB2 = require("@marsaud/smb2");
 const FileTime = require("win32filetime");
 import fs from "fs";
+const md5 = require("md5");
 import BigInt from "@marsaud/smb2/lib/tools/BigInt";
+
 let K = 1024,
     M = 1024 * 1024,
     G = K * M;
@@ -231,7 +233,7 @@ export default {
                     name;
             this.downloadFile(remotePath, localPath);
         },
-        downloadFile(remotePath, localPath) {
+        downloadFile(remotePath, localPath, callback, errorCallback) {
             console.log(`从${remotePath}下载文件到${localPath}`);
             common.createToast("已创建下载任务至" + ipcRenderer.sendSync("get-global", "downloadPath"));
             this.smb2Client.createReadStream(remotePath, function(
@@ -242,9 +244,11 @@ export default {
                 var writeStream = fs.createWriteStream(localPath);
                 writeStream.on("finish", function() {
                     console.log("文件下载完毕....");
+                    callback && callback();
                 });
                 writeStream.on("error", function() {
                     console.log("文件下载失败....");
+                    errorCallback && errorCallback();
                 });
                 readStream.pipe(writeStream);
             });
@@ -358,7 +362,34 @@ export default {
                         fileList.push(file);
                     }
                 });
+                //图片文件获取缩略图
+                self.getThumbnail(fileList);
                 self.fileList = folderList.concat(fileList);
+            });
+        },
+        getThumbnail(list) {
+            let thumbnailList = list.filter(
+                item => item.type == "type-image" || item.type == "type-video"
+            );
+            thumbnailList.forEach(item => {
+                let name =
+                    md5(
+                        this.currPath.replace(/^[^/]+/g, "") + "/" + item.name
+                    ) + ".png";
+                console.log(this.disk);
+                let remotePath = this.disk.uuid + "\\thumbnail\\" + name,
+                    localPath =
+                        ipcRenderer.sendSync("get-global", "appPath") +
+                        "/thumbnail/" +
+                        name;
+
+                console.log(
+                    `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                );
+                this.downloadFile(remotePath, localPath, () => {
+                    //下载成功
+                    item.thumbnail = localPath;
+                });
             });
         },
         getFileType(name) {
@@ -498,7 +529,8 @@ export default {
             if (file.type != "type-folder") {
                 return false;
             }
-            this.currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+            this.currPath =
+                this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
             this.renderFileList(this.currPath);
             this.isAllSelect = false;
             this.selectFileList = [];
@@ -538,15 +570,15 @@ export default {
             }
         },
         init() {
-            ipcRenderer.on('refresh-list', () => {
+            ipcRenderer.on("refresh-list", () => {
                 let path = this.currPathList[this.currPathList.length - 1];
                 this.changePath(path);
             });
-            ipcRenderer.on('select-all', () => {
+            ipcRenderer.on("select-all", () => {
                 this.isAllSelect = false;
                 this.toggleAllSelect(true);
             });
-            ipcRenderer.on('download-all', () => {
+            ipcRenderer.on("download-all", () => {
                 this.downloadAllFiles();
             });
         }
