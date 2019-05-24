@@ -10,10 +10,7 @@ const { shell } = require('electron') // deconstructing assignment
 // 初始类型
 // const pg = db.init('page')
 const { dialog } = require('electron')
-
-const appName = app.getName();
-const appPath = path.join(app.getPath("appData"), appName);
-console.log(appPath);
+import fs from 'fs';
 
 /**
  * Set `__static` path to static files in production
@@ -33,6 +30,12 @@ const listURL = process.env.NODE_ENV === 'development'
 
 class ElectronicUbbey {
 	constructor() {
+		const appName = app.getName();
+		const appPath = path.join(app.getPath("appData"), appName);
+		const thumbnailPath = path.join(appPath, 'thumbnail');
+		console.log("appPath:" + appPath);
+		console.log("thumbnailPath:" + thumbnailPath);
+
 		this.mainWindow = null;
 		let downloadPath = ''//pg.get('downloadPath');
 		this.shareObjects = {
@@ -40,7 +43,13 @@ class ElectronicUbbey {
 			userInfo: null,
 			loginInfo: null,
 			cookie: '',
+			appPath: appPath,
 			downloadPath: downloadPath || process.env.HOME + "/Downloads"
+		}
+
+		//创建缩略图文件夹
+		if (!fs.existsSync(thumbnailPath)) {
+			fs.mkdirSync(thumbnailPath);
 		}
 	}
 
