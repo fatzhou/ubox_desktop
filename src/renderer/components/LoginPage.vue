@@ -115,7 +115,7 @@ export default {
 
         submitForm() {
             console.log("即将登录.....");
-            if (this.isShowLoading == true) {
+            if (this.clickSubmitClass.indexOf("hide-load") < 0) {
                 console.log("正在提交.......");
                 //正在提交中，防止重复提交
                 return false;
