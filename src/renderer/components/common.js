@@ -13,10 +13,10 @@ var common = {
 	searching: false,
 	box: null,
 	post(url, params, opt) {
-		console.log("start to post..........", common.boxIp)
+		common.log("start to post..........");
 		return new Promise((resolve, reject) => {
 			opt = opt || {};
-			console.log("----", opt.boxIp, opt.boxPort)
+			common.log("----", opt.boxIp, opt.boxPort)
 			let cookie = ipcRenderer.sendSync("get-global", "cookie");
 			var options = {
 				// hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
@@ -43,7 +43,7 @@ var common = {
 					data += chunk;
 				});
 				res.on('end', () => {
-					console.log('请求响应：' + data + ",url:" + url);
+					common.log('请求响应：' + data + ",url:" + url);
 					var res = {};
 					try {
 						res = JSON.parse(data);
@@ -68,7 +68,7 @@ var common = {
 				reject(e);
 			});
 			req.write(querystring.stringify(params));
-			console.log("请求已发送:" + url + ",参数：" + querystring.stringify(params));
+			common.log("请求已发送:" + url + ",参数：" + querystring.stringify(params));
 			req.end();
 		})
 
@@ -76,31 +76,36 @@ var common = {
 	setBox(box) {
 		this.box = box;
 	},
+	log(...args) {
+		console.log(Date.now() + " | " + args.join('==='));
+	},
 	getBox() {
 		return this.box;
 	},
 	discovery(unameHash) {
 		return new Promise((resolve, reject) => {
-			console.log("即将开始搜索盒子.....");
+			common.log("即将开始搜索盒子.....");
 			if (this.searching) {
-				console.log("正在搜索.....");
+				common.log("正在搜索.....");
 				reject('searching');
 			}
 			this.searching = true;
+			common.log("开始调用startDiscovery.....");
+
 			upnp.startDiscovery({
 				st: 'upnp:ubbeybox',
 				mx: 3
 			});
 
-			console.log("startDiscovery调用完毕.....");
+			common.log("startDiscovery调用完毕.....");
 
 			let timeout = setTimeout(() => {
-				console.log("并未搜索到设备，超时结束.......");
+				common.log("并未搜索到设备，超时结束.......");
 				upnp.stopDiscovery(() => {
-					console.log('stopDiscovery');
+					common.log('stopDiscovery', Date.now());
 					this.searching = false;
 					// var device_list = upnp.getActiveDeviceList();
-					// console.log(device_list.length + ' devices (services) were found.');
+					// common.log(device_list.length + ' devices (services) were found.');
 					// let device = device_list.find(item => {
 					// 	item.bindUserHash == unameHash
 					// });
@@ -111,14 +116,14 @@ var common = {
 			}, 8000);
 
 			upnp.on('added', (device) => {
-				console.log("搜索到设备:", device)
+				common.log("搜索到设备:", JSON.stringify(device));
 				var bindUserHash = device.device.bindUserHash,
 					boxId = device.device.boxId;
 				if (bindUserHash == unameHash) {
-					console.log("搜索到自己的设备....");
+					common.log("搜索到自己的设备....");
 					if (timeout) {
 						upnp.stopDiscovery(() => {
-							console.log('stop')
+							common.log('stop')
 							this.searching = false;
 						});
 						clearTimeout(timeout);
@@ -149,7 +154,7 @@ var common = {
 	},
 	// eventDelegate(root, eventName, selector, callback) {
 	// 	root.addEventListener(eventName, function (e) {
-	// 		console.log("34567")
+	// 		common.log("34567")
 	// 		var l = e.target;
 	// 		if (selector.indexOf('.') < 0) {
 	// 			while (l.tagName.toLowerCase() !== selector) {
@@ -170,7 +175,7 @@ var common = {
 	// 			}
 	// 		}
 	// 		if (l) {
-	// 			console.log('子元素命中！');
+	// 			common.log('子元素命中！');
 	// 			callback(e, l);
 	// 		}
 	// 	})

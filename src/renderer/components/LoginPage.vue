@@ -60,8 +60,10 @@ export default {
             boxPort: "",
             //   username: "",
             //   password: "",
-            username: "619912987@qq.com",
-            password: "dh5819413",
+            username: "1@qq.com",
+            password: "A123456789",
+            // username: "619912987@qq.com",
+            // password: "dh5819413",
             usernameActive: "",
             passwordActive: "",
             usernameInputClass: "",
@@ -114,9 +116,9 @@ export default {
         },
 
         submitForm() {
-            console.log("即将登录.....");
+            common.log("即将登录.....");
             if (this.clickSubmitClass.indexOf("hide-load") < 0) {
-                console.log("正在提交.......");
+                common.log("正在提交.......");
                 //正在提交中，防止重复提交
                 return false;
             }
@@ -127,7 +129,7 @@ export default {
             //提交数据
             let username = this.username,
                 password = this.password;
-            console.log("登录用户名：" + username + ",登录密码：" + password);
+            common.log("登录用户名：" + username + ",登录密码：" + password);
             // ipcRenderer.send('login', username, password);
 
             //开始获取盒子git s
@@ -135,7 +137,7 @@ export default {
             return common
                 .discovery(unameHash)
                 .then(device => {
-                    console.log("搜索到盒子：" + JSON.stringify(device));
+                    common.log("搜索到盒子：" + JSON.stringify(device));
                     if (device) {
                         ipcRenderer.send("update-global", "box", device);
                         //解析盒子ip和端口
@@ -152,7 +154,7 @@ export default {
                                 password: md5(password)
                             })
                             .then(res => {
-                                console.log(
+                                common.log(
                                     "登录成功.....，开始获取用户信息......."
                                 );
 
@@ -178,7 +180,7 @@ export default {
                                             );
 
                                             if (res.err_no == 0) {
-                                                console.log(
+                                                common.log(
                                                     "获取用户信息成功.....",
                                                     res.data
                                                 );
@@ -196,7 +198,7 @@ export default {
                     }
                 })
                 .catch(e => {
-                    console.log("登录失败.....", e);
+                    common.log("登录失败.....", e);
                     setTimeout(() => {
                         this.clickSubmitClass = "hide-load";
                         if (!e) {

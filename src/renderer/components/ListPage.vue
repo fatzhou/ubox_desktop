@@ -125,6 +125,7 @@ export default {
             userInfo: {},
             loginInfo: {},
             smb2Client: {},
+            smbConfig: null,
             toastStr: "",
             disks: [],
             fileList: [],
@@ -166,7 +167,7 @@ export default {
     },
     computed: {
         isShowToast() {
-            console.log(this);
+            common.log(this);
             return this.$store.state.Counter.isShowToast;
         },
         toastText() {
@@ -183,7 +184,7 @@ export default {
             this.box = ipcRenderer.sendSync("get-global", "box");
             this.userInfo = ipcRenderer.sendSync("get-global", "userInfo");
             this.loginInfo = ipcRenderer.sendSync("get-global", "loginInfo");
-            console.log(this.box, this.userInfo, this.loginInfo);
+            common.log(this.box, this.userInfo, this.loginInfo);
         },
         initSamba() {
             let location = this.box.URLBase;
@@ -201,7 +202,7 @@ export default {
                 )
                 .then(res => {
                     if (res.err_no == 0) {
-                        this.smb2Client = new SMB2({
+                        this.smbConfig = {
                             share: "\\\\" + boxIp + "\\" + res.tag,
                             domain: res.tag,
                             autoCloseTimeout: 0, //设置此参数以后不会自动关闭连接，需要手动调用smb2Client.disconnect();
@@ -209,7 +210,8 @@ export default {
                             password: res.samba_pwd
                             // username: this.loginInfo.username,
                             // password: this.loginInfo.password,
-                        });
+                        };
+                        this.smb2Client = new SMB2(this.smbConfig);
                         this.renderDisks();
                     }
                 });
@@ -217,25 +219,38 @@ export default {
         downloadAllFiles() {
             this.selectFileList.map(item => {
                 if (item.type != "type-folder") {
-                    console.log(" +++++ " + item.name);
+                    common.log(" +++++ " + item.name);
                     this.downloadFileToLocal(item.name);
                 }
             });
             this.selectFileList = [];
             this.toggleAllSelect(0);
-            common.createToast("已经成功创建下载任务至" + ipcRenderer.sendSync("get-global", "downloadPath"));
+            common.createToast(
+                "已经成功创建下载任务至" +
+                    ipcRenderer.sendSync("get-global", "downloadPath")
+            );
         },
-        downloadFileToLocal(name) {
+        downloadFileToLocal(name, options) {
+            options = options || {};
             let remotePath = this.currPath + "\\" + name,
                 localPath =
                     ipcRenderer.sendSync("get-global", "downloadPath") +
                     "/" +
                     name;
-            this.downloadFile(remotePath, localPath);
+            this.downloadFile(remotePath, localPath, null, null, {
+                toast: !!options.toast
+            });
         },
-        downloadFile(remotePath, localPath, callback, errorCallback) {
-            console.log(`从${remotePath}下载文件到${localPath}`);
-            common.createToast("已创建下载任务至" + ipcRenderer.sendSync("get-global", "downloadPath"));
+        downloadFile(remotePath, localPath, callback, errorCallback, options) {
+            common.log(`从${remotePath}下载文件到${localPath}`);
+            options = options || {};
+            if (options.toast) {
+                common.createToast(
+                    "已创建下载任务至" +
+                        ipcRenderer.sendSync("get-global", "downloadPath")
+                );
+            }
+
             this.smb2Client.createReadStream(remotePath, function(
                 err,
                 readStream
@@ -243,11 +258,11 @@ export default {
                 if (err) throw err;
                 var writeStream = fs.createWriteStream(localPath);
                 writeStream.on("finish", function() {
-                    console.log("文件下载完毕....");
+                    common.log("文件下载完毕....");
                     callback && callback();
                 });
                 writeStream.on("error", function() {
-                    console.log("文件下载失败....");
+                    common.log("文件下载失败....");
                     errorCallback && errorCallback();
                 });
                 readStream.pipe(writeStream);
@@ -260,13 +275,11 @@ export default {
             let diskCount = 0;
             this.boxIp = boxIp;
             this.boxPort = boxPort || 37867;
-            console.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
+            common.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
             this.smb2Client.readdir("", (err, content) => {
-                console.log(content);
                 if (!content || !content.length) {
                     return false;
                 }
-                this.renderFileList(content[0].Filename);
                 this.currPath = content[0].Filename;
                 common
                     .post(
@@ -279,12 +292,14 @@ export default {
                     )
                     .then(res => {
                         if (res.err_no == 0) {
+                            console.log("获取磁盘状态成功.....");
                             let disks = [];
                             res.disks = res.disks || [];
-
+                            console.log("磁盘信息：" + JSON.stringify(content));
                             res.disks.forEach(item => {
+                                let uuid = item.uuid.replace(/-/g, "");
                                 let cont = content.find(disk => {
-                                    return item.uuid == disk.Filename;
+                                    return uuid == disk.Filename;
                                 });
                                 if (!cont) {
                                     return false;
@@ -302,15 +317,20 @@ export default {
                                     size: item.size,
                                     used: item.used
                                 });
-                                if (disks[0]) {
-                                    disks[0].isSelect = true;
-                                    this.initCurrPath();
-                                    this.disk = disks[0];
-                                }
-                                this.disks = disks;
                             });
+                            if (disks[0]) {
+                                common.log(
+                                    "设置初始磁盘：" + JSON.stringify(disks[0])
+                                );
+                                disks[0].isSelect = true;
+                                this.initCurrPath();
+                                this.disk = disks[0];
+                            }
+                            this.disks = disks;
                         }
                     });
+
+                this.renderFileList(content[0].Filename);
             });
         },
         computeGB(size) {
@@ -321,69 +341,75 @@ export default {
             }
         },
         renderFileList(folder) {
-            console.log("查询目录-----：" + folder);
+            common.log("查询目录-----：" + folder);
             let self = this;
-            this.smb2Client.readdir(folder, function(err, content) {
-                console.log("abcd+++++++++");
-                if (err) throw err;
-                console.log(content);
-                window.content = content; //For debug
+            try {
+                this.smb2Client.readdir(folder, function(err, content) {
+                    if (err) throw err;
+                    common.log(content);
+                    window.content = content; //For debug
 
-                let fileList = [],
-                    folderList = [];
-                content.forEach(item => {
-                    if (/\.uploading$/g.test(item.Filename)) {
-                        return;
-                    }
-                    var low = item.LastWriteTime.readUInt32LE(0),
-                        high = item.LastWriteTime.readUInt32LE(4);
-                    var lastWriteTime = self.transferDate(
-                        FileTime.toDate({
-                            low: low,
-                            high: high
-                        })
-                    );
-                    var typeTest = /[.]/g;
-                    var type =
-                        item.FileAttributes == 16
-                            ? "type-folder"
-                            : self.getFileType(item.Filename);
-                    let file = {
-                        isSelect: false,
-                        name: item.Filename,
-                        type: type,
-                        size: BigInt.fromBuffer(item.EndofFile).toNumber(),
-                        time: lastWriteTime
-                    };
-                    if (item.FileAttributes == 16) {
-                        folderList.push(file);
-                    } else {
-                        //该属性可以用于检测MIME
-                        fileList.push(file);
-                    }
+                    let fileList = [],
+                        folderList = [];
+                    content.forEach(item => {
+                        if (/\.uploading$/g.test(item.Filename)) {
+                            return;
+                        }
+                        var low = item.LastWriteTime.readUInt32LE(0),
+                            high = item.LastWriteTime.readUInt32LE(4);
+                        var lastWriteTime = self.transferDate(
+                            FileTime.toDate({
+                                low: low,
+                                high: high
+                            })
+                        );
+                        var typeTest = /[.]/g;
+                        var type =
+                            item.FileAttributes == 16
+                                ? "type-folder"
+                                : self.getFileType(item.Filename);
+                        let file = {
+                            isSelect: false,
+                            name: item.Filename,
+                            type: type,
+                            size: BigInt.fromBuffer(item.EndofFile).toNumber(),
+                            time: lastWriteTime
+                        };
+                        if (item.FileAttributes == 16) {
+                            folderList.push(file);
+                        } else {
+                            //该属性可以用于检测MIME
+                            fileList.push(file);
+                        }
+                    });
+                    //图片文件获取缩略图
+                    self.getThumbnail(folder, fileList);
+                    self.fileList = folderList.concat(fileList);
                 });
-                //图片文件获取缩略图
-                self.getThumbnail(fileList);
-                self.fileList = folderList.concat(fileList);
-            });
+            } catch (e) {
+                console.log("Readdir catch.......");
+                this.smb2Client.disconnect();
+                this.smb2Client = new SMB2(this.smbConfig);
+                this.renderFileList(folder);
+            }
         },
-        getThumbnail(list) {
+        getThumbnail(folder, list) {
+            common.log("获取以下缩略图：", folder);
             let thumbnailList = list.filter(
                 item => item.type == "type-image" || item.type == "type-video"
             );
+            let uuid = folder.replace(/^([^/]+)\/.+$/, "$1");
+            let subFolder = folder.replace(uuid, "");
             thumbnailList.forEach(item => {
-                let name =
-                    md5(
-                        this.currPath.replace(/^[^/]+/g, "") + "/" + item.name
-                    ) + ".png";
-                console.log(this.disk);
-                let remotePath = this.disk.uuid + "\\thumbnail\\" + name,
+                let name = md5(subFolder + "/" + item.name) + ".png";
+                console.log(subFolder, "+++++++", item.name);
+                let remotePath = uuid + "\\thumbnail.uploading\\" + name,
                     localPath =
                         ipcRenderer.sendSync("get-global", "appPath") +
                         "/thumbnail/" +
                         name;
 
-                console.log(
+                common.log(
                     `缩略图远程路径：${remotePath},本地路径：${localPath}`
                 );
                 this.downloadFile(remotePath, localPath, () => {
@@ -511,7 +537,7 @@ export default {
             }
         },
         toggleAllSelect(isSelect = null) {
-            if(isSelect == 0) {
+            if (isSelect == 0) {
                 this.isAllSelect = false;
             } else {
                 this.isAllSelect = !this.isAllSelect;
@@ -556,7 +582,7 @@ export default {
                 this.currPath = pathList.join("\\");
                 this.initCurrPath();
             }
-            console.log(this.currPath);
+            common.log(this.currPath);
             this.renderFileList(this.currPath);
         },
         initCurrPath() {
