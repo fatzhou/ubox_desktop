@@ -565,12 +565,12 @@ export default {
             if (file.type != "type-folder") {
                 return false;
             }
-            this.currPath =
+            let currPath =
                 this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
-            this.renderFileList(this.currPath);
+
+            this.renderFileList(currPath);
             this.isAllSelect = false;
             this.selectFileList = [];
-            this.initCurrPath();
         },
         changePath(path) {
             if (

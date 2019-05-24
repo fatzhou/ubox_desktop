@@ -4,6 +4,8 @@ import { app, BrowserWindow, ipcMain, Menu, ipcRenderer } from 'electron'
 import Common from '../common';
 import path from 'path';
 const { shell } = require('electron') // deconstructing assignment
+import Store from '../renderer/components/store';
+
 
 // const LNDB = require('lndb')
 // const db = new LNDB('your/path')
@@ -30,6 +32,14 @@ const listURL = process.env.NODE_ENV === 'development'
 	? `http://localhost:9080#list`
 	: `file://${__dirname}/index.html#list`
 
+const store = new Store({
+	// We'll call our data file 'user-preferences'
+	configName: 'ubbey-info',
+	defaults: {
+		// 800x600 is the default size of our window
+		downloadPath: 'jkk'
+	}
+});
 class ElectronicUbbey {
 	constructor() {
 		const appName = app.getName();
@@ -39,7 +49,11 @@ class ElectronicUbbey {
 		console.log("thumbnailPath:" + thumbnailPath);
 
 		this.mainWindow = null;
-		let downloadPath = ''//pg.get('downloadPath');
+		
+		// console.log('llll' + JSON.stringify(store));
+		// console.log('hhhh' + store.set('downloadPath', 'kkk'));
+		// console.log('jjjj' + store.get('downloadPath'));
+		let downloadPath = store.get('downloadPath') || ''//pg.get('downloadPath');
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
@@ -53,6 +67,7 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
+		
 	}
 
 	init() {
@@ -108,6 +123,9 @@ class ElectronicUbbey {
 		if (path) {
 			console.log("用户已更新下载文件夹:" + path);
 			this.shareObjects.downloadPath = path;
+			// console.log(store)
+			store.set('downloadPath', path);
+			// console.log('jjjj' + store.get('downloadPath'));
 			// pg.set('downloadPath', path);
 		} else {
 			console.log("用户取消了下载文件夹变更");
@@ -127,6 +145,7 @@ class ElectronicUbbey {
 								console.log("------");
 								//设置下载文件夹
 								self.selectDirectory();
+								
 							}
 						},		
 						{
