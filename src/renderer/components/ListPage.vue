@@ -328,7 +328,8 @@ export default {
                 if (err) throw err;
                 console.log(content);
                 window.content = content; //For debug
-
+                self.currPath = folder;
+                self.initCurrPath();
                 let fileList = [],
                     folderList = [];
                 content.forEach(item => {
@@ -363,13 +364,16 @@ export default {
                     }
                 });
                 //图片文件获取缩略图
-                self.getThumbnail(fileList);
+                // self.getThumbnail(fileList);
                 self.fileList = folderList.concat(fileList);
             });
         },
         getThumbnail(list) {
             let thumbnailList = list.filter(
-                item => item.type == "type-image" || item.type == "type-video"
+                item => 
+                {
+                    return  item.type == "type-image" || item.type == "type-video"
+                }
             );
             thumbnailList.forEach(item => {
                 let name =
@@ -529,12 +533,12 @@ export default {
             if (file.type != "type-folder") {
                 return false;
             }
-            this.currPath =
-                this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
-            this.renderFileList(this.currPath);
+            let currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+            
+            this.renderFileList(currPath);
             this.isAllSelect = false;
             this.selectFileList = [];
-            this.initCurrPath();
+            
         },
         changePath(path) {
             if (
