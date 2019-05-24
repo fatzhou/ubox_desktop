@@ -217,8 +217,6 @@ class ElectronicUbbey {
 			self.mainWindow.show();
 			self.mainWindow.focus();
 		});
-
-
 	}
 }
 
