@@ -75,7 +75,11 @@
                             @click="toggleSelect(file)"
                         >
                             <div class="fl file-checkbox" :class="file.isSelect ? 'select' : ''"></div>
-                            <div class="fl file-name" :class="file.type">
+                            <div
+                                class="fl file-name"
+                                :class="file.type"
+                                :style="file.thumbnail ? 'background-image: url(' + file.thumbnail + ')' : ''"
+                            >
                                 <a
                                     href="javascript:void(0)"
                                     @click.stop
@@ -383,8 +387,8 @@ export default {
                         }
                     });
                     //图片文件获取缩略图
-                    self.getThumbnail(folder, fileList);
                     self.fileList = folderList.concat(fileList);
+                    self.getThumbnail(folder, fileList);
                 });
             } catch (e) {
                 console.log("Readdir catch.......");
@@ -395,28 +399,34 @@ export default {
         },
         getThumbnail(folder, list) {
             common.log("获取以下缩略图：", folder);
-            let thumbnailList = list.filter(
-                item => item.type == "type-image" || item.type == "type-video"
-            );
             let uuid = folder.replace(/^([^/]+)\/.+$/, "$1");
             let subFolder = folder.replace(uuid, "");
-            thumbnailList.forEach(item => {
-                let name = md5(subFolder + "/" + item.name) + ".png";
-                console.log(subFolder, "+++++++", item.name);
-                let remotePath = uuid + "\\thumbnail.uploading\\" + name,
-                    localPath =
-                        ipcRenderer.sendSync("get-global", "appPath") +
-                        "/thumbnail/" +
-                        name;
+            let self = this;
+            for (let i = 0, len = list.length; i < len; i++) {
+                let item = list[i];
+                if (item.type == "type-image" || item.type == "type-video") {
+                    let name = md5(subFolder + "/" + item.name) + ".png";
+                    console.log(subFolder, "+++++++", item.name);
+                    let remotePath = uuid + "\\thumbnail.uploading\\" + name,
+                        localPath =
+                            ipcRenderer.sendSync("get-global", "appPath") +
+                            "/thumbnail/" +
+                            name;
 
-                common.log(
-                    `缩略图远程路径：${remotePath},本地路径：${localPath}`
-                );
-                this.downloadFile(remotePath, localPath, () => {
-                    //下载成功
-                    item.thumbnail = localPath;
-                });
-            });
+                    common.log(
+                        `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                    );
+                    !(function(index, value) {
+                        self.downloadFile(remotePath, localPath, () => {
+                            //下载成功
+                            value.thumbnail = localPath;
+                            console.log(index, value, "-------");
+                            //触发UI更新
+                            self.$set(self.fileList, index, value);
+                        });
+                    })(i, item);
+                }
+            }
         },
         getFileType(name) {
             //TODO: 根据名字后缀，计算file type
