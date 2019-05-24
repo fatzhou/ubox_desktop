@@ -24,6 +24,7 @@
                         id="password"
                         v-on:input="passwordChange"
                         v-model="password"
+                        @keyup.enter="submitForm"
                     >
                     <span class="label" id="password-wrap" :class="passwordActive">Password</span>
                 </label>
@@ -69,11 +70,18 @@ export default {
     },
     computed: {
         isShowToast() {
-            console.log(this);
             return this.$store.state.Counter.isShowToast;
         },
         toastText() {
             return this.$store.state.Counter.toastText;
+        }
+    },
+    mounted() {
+        if (this.username.length > 0) {
+            this.usernameActive = "active";
+        }
+        if (this.password.length > 0) {
+            this.passwordActive = "active";
         }
     },
     methods: {
@@ -188,7 +196,7 @@ export default {
                     }
                 })
                 .catch(e => {
-                    console.log("登录失败.....");
+                    console.log("登录失败.....", e);
                     setTimeout(() => {
                         this.clickSubmitClass = "hide-load";
                         if (!e) {

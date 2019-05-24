@@ -222,7 +222,8 @@ export default {
                 }
             });
             this.selectFileList = [];
-            this.toggleAllSelect();
+            this.toggleAllSelect(0);
+            common.createToast("已经成功创建下载任务至" + ipcRenderer.sendSync("get-global", "downloadPath"));
         },
         downloadFileToLocal(name) {
             let remotePath = this.currPath + "\\" + name,
@@ -234,6 +235,7 @@ export default {
         },
         downloadFile(remotePath, localPath, callback, errorCallback) {
             console.log(`从${remotePath}下载文件到${localPath}`);
+            common.createToast("已创建下载任务至" + ipcRenderer.sendSync("get-global", "downloadPath"));
             this.smb2Client.createReadStream(remotePath, function(
                 err,
                 readStream
@@ -509,7 +511,11 @@ export default {
             }
         },
         toggleAllSelect(isSelect = null) {
-            this.isAllSelect = isSelect || !this.isAllSelect;
+            if(isSelect == 0) {
+                this.isAllSelect = false;
+            } else {
+                this.isAllSelect = !this.isAllSelect;
+            }
             this.fileList.map(item => {
                 item.isSelect = this.isAllSelect;
             });

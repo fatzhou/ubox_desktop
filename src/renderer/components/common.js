@@ -10,6 +10,7 @@ import store from '../store';
 var upnp = require('node-upnp-utils');
 var common = {
 	env: "test",
+	searching: false,
 	box: null,
 	post(url, params, opt) {
 		console.log("start to post..........", common.boxIp)
@@ -80,40 +81,58 @@ var common = {
 	},
 	discovery(unameHash) {
 		return new Promise((resolve, reject) => {
+			console.log("即将开始搜索盒子.....");
+			if (this.searching) {
+				console.log("正在搜索.....");
+				reject('searching');
+			}
+			this.searching = true;
 			upnp.startDiscovery({
 				st: 'upnp:ubbeybox',
 				mx: 3
 			});
 
+			console.log("startDiscovery调用完毕.....");
+
 			let timeout = setTimeout(() => {
-				console.log("超时结束.......");
+				console.log("并未搜索到设备，超时结束.......");
 				upnp.stopDiscovery(() => {
-					var device_list = upnp.getActiveDeviceList();
-					console.log(device_list.length + ' devices (services) were found.');
-					let device = device_list.find(item => {
-						item.bindUserHash == unameHash
-					});
-					resolve(device);
+					console.log('stopDiscovery');
+					this.searching = false;
+					// var device_list = upnp.getActiveDeviceList();
+					// console.log(device_list.length + ' devices (services) were found.');
+					// let device = device_list.find(item => {
+					// 	item.bindUserHash == unameHash
+					// });
+					// resolve(device);
 				});
+				this.searching = false; //stopdiscovery的回调经常执行不了，直接更改状态
 				resolve(null);
 			}, 8000);
 
 			upnp.on('added', (device) => {
-				console.log(device)
+				console.log("搜索到设备:", device)
 				var bindUserHash = device.device.bindUserHash,
 					boxId = device.device.boxId;
 				if (bindUserHash == unameHash) {
+					console.log("搜索到自己的设备....");
 					if (timeout) {
 						upnp.stopDiscovery(() => {
 							console.log('stop')
+							this.searching = false;
 						});
 						clearTimeout(timeout);
 						timeout = null;
 					}
+					this.searching = false; //stopdiscovery的回调经常执行不了，直接更改状态
 					resolve(device);
 				}
 			});
 		})
+			.catch(e => {
+				this.searching = false;
+				return Promise.reject('search box catch...', e);
+			})
 	},
 	createToast(err_msg) {
 		store.commit('updateToastStatus', {
