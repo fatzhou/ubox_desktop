@@ -286,7 +286,8 @@ a {
     cursor: pointer;
 }
 
-.login-btn.active, .login-btn:hover {
+.login-btn.active,
+.login-btn:hover {
     background-image: linear-gradient(-244deg, #0AA779 0%, #1DA4AE 100%);
 }
 
@@ -599,25 +600,26 @@ a {
 }
 
 .path p {
-	overflow-x: scroll;
-	white-space: nowrap;
+    overflow-x: scroll;
+    white-space: nowrap;
     /* overflow-y: hidden; */
     height: 36px;
 }
+
 .path p::-webkit-scrollbar {
     display: none;
 }
 
 .path span {
-	display: inline-block;
-	height: 36px;
-	padding-right: 16px;
-	color: #9B9B9B;
-	background: url(../images/Arrow_right_02.svg) no-repeat -10% center;
-	background-size: 6px auto;
-	background-position-x: calc(100% - 5px);
-	cursor: pointer;
-	/* max-width: 130px;
+    display: inline-block;
+    height: 36px;
+    padding-right: 16px;
+    color: #9B9B9B;
+    background: url(../images/Arrow_right_02.svg) no-repeat -10% center;
+    background-size: 6px auto;
+    background-position-x: calc(100% - 5px);
+    cursor: pointer;
+    /* max-width: 130px;
 	text-overflow: ellipsis;
 	overflow: hidden; */
 }
@@ -636,6 +638,7 @@ a {
     height: calc(100% - 32px);
     overflow-y: scroll;
 }
+
 .file-list-box ul::-webkit-scrollbar {
     display: none;
 }
@@ -687,28 +690,37 @@ a {
 
 .file-name {
     width: calc(50% - 25px);
-    padding-left: 32px;
-    background-image: url(../images/Default_icon.svg);
+    /* padding-left: 32px; */
+    /* background-image: url(../images/Default_icon.svg);
     background-position: 0 center;
-    background-size: 22px auto;
+    background-size: 22px auto; */
     background-repeat: no-repeat;
     position: relative;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.file-type {
+    width: 32px;
+    height: 32px;
+    background: url(../images/Default_icon.svg) center center no-repeat;
+    background-size: 22px auto;
+    margin-right: 12px;
+}
+
+.file-type .thumbnail {
+    height: 100%;
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .file-name a {
-    text-overflow: -o-ellipsis-lastline;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    -webkit-box-orient: vertical;
     padding-right: 60px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    width: 100%;
-    display: inline-block;
+    flex: 1;
 }
 
 .download-icon {
@@ -763,9 +775,11 @@ a {
 .type-image {
     background-image: url(../images/Image_icon.svg);
 }
+
 .type-bt {
     background-image: url(../images/Torrent_icon.svg);
 }
+
 .file-name.nobackground {
     padding-left: 0;
     background-image: none;

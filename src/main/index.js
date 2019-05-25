@@ -49,7 +49,7 @@ class ElectronicUbbey {
 		console.log("thumbnailPath:" + thumbnailPath);
 
 		this.mainWindow = null;
-		
+
 		// console.log('llll' + JSON.stringify(store));
 		// console.log('hhhh' + store.set('downloadPath', 'kkk'));
 		// console.log('jjjj' + store.get('downloadPath'));
@@ -67,7 +67,7 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
-		
+
 	}
 
 	init() {
@@ -136,95 +136,97 @@ class ElectronicUbbey {
 		let self = this;
 		// Create the Application's main menu
 		var template = [
-				{
-					label: app.getName(),
-					submenu: [
-						{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
-						{
-							label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", click: function () {
-								console.log("------");
-								//设置下载文件夹
-								self.selectDirectory();
-								
-							}
-						},		
-						{
-							label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
-								//TODO
-								// const appIcon = new Tray('assets/images/icon.png');
+			{
+				label: app.getName(),
+				submenu: [
+					{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
+					{
+						label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", click: function () {
+							console.log("------");
+							//设置下载文件夹
+							self.selectDirectory();
 
-								dialog.showMessageBox(self.mainWindow, {
-									title: "检查更新",
-									message: "您当前已经是最新版本"
-								});
-							}
-						},
-						{
-							label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); }
 						}
-					]
-				},
-					// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
-				{
-					label: "编辑",
-					submenu: [
+					},
+					{
+						label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
+							//TODO
+							// const appIcon = new Tray('assets/images/icon.png');
 
-						{ label: "全选", accelerator: "CmdOrCtrl+A", click: function () {
-								//选中所有
-								self.mainWindow.webContents.send("select-all")
-							}
-						},
-						{
-							label: "下载", accelerator: "Shift+CmdOrCtrl+D", function () {
+							dialog.showMessageBox(self.mainWindow, {
+								title: "检查更新",
+								message: "您当前已经是最新版本"
+							});
+						}
+					},
+					{
+						label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); }
+					}
+				]
+			},
+			// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
+			{
+				label: "编辑",
+				submenu: [
+
+					{
+						label: "全选", accelerator: "CmdOrCtrl+A", click: function () {
+							//选中所有
+							self.mainWindow.webContents.send("select-all")
+						}
+					},
+					{
+						label: "下载", accelerator: "Shift+CmdOrCtrl+D", function() {
 							//下载选中文件
-								self.mainWindow.webContents.send("download-all");
-							}
-						},
-						{ type: "separator" },
-						{label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
-								//刷新列表
-								self.mainWindow.webContents.send("refresh-list");
-							}
-						},
-						{
-							label: "打开下载文件夹", accelerator: "CmdOrCtrl+O", click: function () {
-								shell.openItem(self.shareObjects.downloadPath); //打开下载文件夹
-							}
+							self.mainWindow.webContents.send("download-all");
 						}
-					],
-				},
-				{
-					label: "窗口",
-					submenu: [
-						{ label: "最小化", accelerator: "CmdOrCtrl+M", role: "minimize" },
-						{
-							label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
-								Common.ISMAX = !Common.ISMAX;
-								if (Common.ISMAX) {
-									self.mainWindow.maximize();
-								} else {
-									self.mainWindow.setSize(Common.WINDOW_SIZE.width, Common.WINDOW_SIZE.height);
-								}
-								self.mainWindow.center();
-							}
+					},
+					{ type: "separator" },
+					{
+						label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
+							//刷新列表
+							self.mainWindow.webContents.send("refresh-list");
 						}
-					]
-				},
-				{
-					label: "帮助",
-					submenu: [
-						{
-							label: "使用帮助", accelerator: "CmdOrCtrl+H", click() {
-								shell.openExternalSync('https://ubbey.org');
+					},
+					{
+						label: "打开下载文件夹", accelerator: "CmdOrCtrl+O", click: function () {
+							shell.openItem(self.shareObjects.downloadPath); //打开下载文件夹
+						}
+					}
+				],
+			},
+			{
+				label: "窗口",
+				submenu: [
+					{ label: "最小化", accelerator: "CmdOrCtrl+M", role: "minimize" },
+					{
+						label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
+							Common.ISMAX = !Common.ISMAX;
+							if (Common.ISMAX) {
+								self.mainWindow.maximize();
+							} else {
+								self.mainWindow.setSize(Common.WINDOW_SIZE.width, Common.WINDOW_SIZE.height);
 							}
-						},
-					]
-				}];
-							
-							
+							self.mainWindow.center();
+						}
+					}
+				]
+			},
+			{
+				label: "帮助",
+				submenu: [
+					{
+						label: "使用帮助", accelerator: "CmdOrCtrl+H", click() {
+							shell.openExternalSync('https://ubbey.org');
+						}
+					},
+				]
+			}];
+
+
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 	}
-						
+
 
 	createMainWindow() {
 		var self = this;
@@ -244,6 +246,7 @@ class ElectronicUbbey {
 			titleBarStyle: 'hidden',
 			webPreferences: {
 				nodeIntegration: true,
+				webSecurity: false,
 				// devTools: false,
 			}
 			// titlebarAppearsTransparent: 'YES'

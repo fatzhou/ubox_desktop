@@ -75,11 +75,14 @@
                             @click="toggleSelect(file)"
                         >
                             <div class="fl file-checkbox" :class="file.isSelect ? 'select' : ''"></div>
-                            <div
-                                class="fl file-name"
-                                :class="file.type"
-                                :style="file.thumbnail ? 'background-image: url(' + file.thumbnail + ')' : ''"
-                            >
+                            <div class="fl file-name">
+                                <div class="file-type" :class="file.type">
+                                    <img
+                                        class="thumbnail"
+                                        v-if="file.thumbnail"
+                                        v-bind:src="file.thumbnail"
+                                    >
+                                </div>
                                 <a
                                     href="javascript:void(0)"
                                     @click.stop
@@ -344,7 +347,7 @@ export default {
                 return (size / Math.pow(2, 30)).toFixed(2);
             }
         },
-        renderFileList(folder,isInitPath = false) {
+        renderFileList(folder, isInitPath = false) {
             common.log("查询目录-----：" + folder);
             let self = this;
             try {
@@ -355,7 +358,7 @@ export default {
 
                     let fileList = [],
                         folderList = [];
-                    if(isInitPath) {
+                    if (isInitPath) {
                         self.currPath = folder;
                         self.initCurrPath();
                     }
@@ -392,7 +395,7 @@ export default {
                     });
                     //图片文件获取缩略图
                     self.fileList = folderList.concat(fileList);
-                    // self.getThumbnail(folder, fileList);
+                    self.getThumbnail(folder, fileList);
                 });
             } catch (e) {
                 console.log("Readdir catch.......");
@@ -423,10 +426,10 @@ export default {
                     !(function(index, value) {
                         self.downloadFile(remotePath, localPath, () => {
                             //下载成功
-                            value.thumbnail = localPath;
-                            console.log(index, value, "-------");
+                            value.thumbnail = "file://" + localPath;
                             //触发UI更新
-                            //self.$set(self.fileList, index, value);
+                            // self.$set(self.fileList, index, value);
+                            self.fileList = self.fileList.slice();
                         });
                     })(i, item);
                 }
