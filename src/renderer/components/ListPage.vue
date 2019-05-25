@@ -327,8 +327,8 @@ export default {
                                     "设置初始磁盘：" + JSON.stringify(disks[0])
                                 );
                                 disks[0].isSelect = true;
-                                this.initCurrPath();
                                 this.disk = disks[0];
+                                this.initCurrPath();
                             }
                             this.disks = disks;
                         }
@@ -344,7 +344,7 @@ export default {
                 return (size / Math.pow(2, 30)).toFixed(2);
             }
         },
-        renderFileList(folder) {
+        renderFileList(folder,isInitPath = false) {
             common.log("查询目录-----：" + folder);
             let self = this;
             try {
@@ -355,6 +355,10 @@ export default {
 
                     let fileList = [],
                         folderList = [];
+                    if(isInitPath) {
+                        self.currPath = folder;
+                        self.initCurrPath();
+                    }
                     content.forEach(item => {
                         if (/\.uploading$/g.test(item.Filename)) {
                             return;
@@ -388,7 +392,7 @@ export default {
                     });
                     //图片文件获取缩略图
                     self.fileList = folderList.concat(fileList);
-                    self.getThumbnail(folder, fileList);
+                    // self.getThumbnail(folder, fileList);
                 });
             } catch (e) {
                 console.log("Readdir catch.......");
@@ -422,7 +426,7 @@ export default {
                             value.thumbnail = localPath;
                             console.log(index, value, "-------");
                             //触发UI更新
-                            self.$set(self.fileList, index, value);
+                            //self.$set(self.fileList, index, value);
                         });
                     })(i, item);
                 }
@@ -568,7 +572,7 @@ export default {
             let currPath =
                 this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
 
-            this.renderFileList(currPath);
+            this.renderFileList(currPath, true);
             this.isAllSelect = false;
             this.selectFileList = [];
         },
