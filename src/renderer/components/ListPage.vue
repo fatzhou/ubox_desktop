@@ -36,7 +36,7 @@
                             <p class="disk-name">{{ disk.label }}</p>
                             <p
                                 class="disk-info"
-                            >{{ disk.used | fileSize }} GB/{{ disk.size | fileSize }} GB</p>
+                            >{{ disk.used | fileSize }} /{{ disk.size | fileSize }} </p>
                         </div>
                     </li>
                 </ul>
@@ -87,7 +87,7 @@
                                 >{{ file.name }}</a>
                                 <span
                                     v-if="file.type != 'type-folder'"
-                                    @click.stop="downloadFileToLocal(file.name)"
+                                    @click.stop="downloadFileToLocal(file.name, {toast: true})"
                                     class="download-icon"
                                 ></span>
                             </div>
@@ -576,10 +576,10 @@ export default {
             this.isAllSelect = false;
             this.selectFileList = [];
         },
-        changePath(path) {
+        changePath(path, isRefresh = false ) {
             if (
                 this.currPathList.indexOf(path) > -1 &&
-                this.currPathList.indexOf(path) == this.currPathList.length - 1
+                this.currPathList.indexOf(path) == this.currPathList.length - 1 && !isRefresh
             ) {
                 return false;
             }
@@ -612,7 +612,7 @@ export default {
         init() {
             ipcRenderer.on("refresh-list", () => {
                 let path = this.currPathList[this.currPathList.length - 1];
-                this.changePath(path);
+                this.changePath(path, true);
             });
             ipcRenderer.on("select-all", () => {
                 this.isAllSelect = false;

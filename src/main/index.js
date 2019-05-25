@@ -84,6 +84,17 @@ class ElectronicUbbey {
 		app.on('ready', () => {
 			this.createMainWindow();
 			this.setMenu();
+			// appIcon = new Tray('/path/to/my/icon')
+			// const contextMenu = Menu.buildFromTemplate([
+			// 	{ label: 'Item1', type: 'radio' },
+			// 	{ label: 'Item2', type: 'radio' }
+			// ])
+
+			// // Make a change to the context menu
+			// contextMenu.items[1].checked = false
+
+			// // Call this again for Linux because we modified the context menu
+			// appIcon.setContextMenu(contextMenu)
 		});
 
 		app.on('activate', () => {
