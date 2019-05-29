@@ -15,6 +15,10 @@ body {
     font-weight: normal;
 }
 
+.draggable {
+    -webkit-app-region: drag;
+}
+
 ul,
 li,
 ol {

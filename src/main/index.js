@@ -37,7 +37,7 @@ const store = new Store({
 	configName: 'ubbey-info',
 	defaults: {
 		// 800x600 is the default size of our window
-		downloadPath: 'jkk'
+		downloadPath: process.env.HOME + "/Downloads"
 	}
 });
 class ElectronicUbbey {
@@ -53,13 +53,14 @@ class ElectronicUbbey {
 		// console.log('llll' + JSON.stringify(store));
 		// console.log('hhhh' + store.set('downloadPath', 'kkk'));
 		// console.log('jjjj' + store.get('downloadPath'));
-		let downloadPath = store.get('downloadPath') || ''//pg.get('downloadPath');
+		let downloadPath = store.get('downloadPath');
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
 			loginInfo: null,
 			cookie: '',
 			appPath: appPath,
+			platform: process.platform,
 			downloadPath: downloadPath || process.env.HOME + "/Downloads"
 		}
 
@@ -76,8 +77,30 @@ class ElectronicUbbey {
 		this.initIPC();
 	}
 
-	makeSingleInstance() {
+	makeSingleInstance(cb) {
+		let self = this;
+		if (app.makeSingleInstance) {
+			app.makeSingleInstance((argv, cmd) => {
+				cb && cb();
+			})
+		} else if (app.requestSingleInstanceLock) {
+			let lock = app.requestSingleInstanceLock();
+			if (!lock) {
+				app.quit()
+			} else {
+				app.on('second-instance', (event, argv, cwd) => {
+					if (self.mainWindow) {
+						if (self.mainWindow.isMinimized()) {
+							self.mainWindow.restore();
+							self.mainWindow.focus();
+						}
+					}
+				})
+			}
 
+		} else {
+			cb && cb();
+		}
 	}
 
 	initApp() {

@@ -92,33 +92,40 @@ var common = {
 			this.searching = true;
 			common.log("开始调用startDiscovery.....");
 
-			upnp.startDiscovery({
-				st: 'upnp:ubbeybox',
-				mx: 3
-			});
+			try {
+				upnp.startDiscovery({
+					st: 'upnp:ubbeybox',
+					mx: 3
+				});
+			} catch (e) {
+				console.log("哎哎哎", e);
+				throw e;
+			}
+
 
 			common.log("startDiscovery调用完毕.....");
 
 			let timeout = setTimeout(() => {
 				common.log("并未搜索到设备，超时结束.......");
 				upnp.stopDiscovery(() => {
-					common.log('stopDiscovery', Date.now());
+					common.log('stopDiscovery');
 					this.searching = false;
-					// var device_list = upnp.getActiveDeviceList();
-					// common.log(device_list.length + ' devices (services) were found.');
-					// let device = device_list.find(item => {
-					// 	item.bindUserHash == unameHash
-					// });
-					// resolve(device);
+					var device_list = upnp.getActiveDeviceList();
+					common.log(device_list.length + ' devices (services) were found.');
+					let device = device_list.find(item => {
+						item.bindUserHash == unameHash
+					});
+					resolve(device);
 				});
-				this.searching = false; //stopdiscovery的回调经常执行不了，直接更改状态
-				resolve(null);
+				// this.searching = false; //stopdiscovery的回调经常执行不了，直接更改状态
+				// resolve(null);
 			}, 8000);
 
 			upnp.on('added', (device) => {
 				common.log("搜索到设备:", JSON.stringify(device));
 				var bindUserHash = device.device.bindUserHash,
 					boxId = device.device.boxId;
+				console.log("设备hash:" + bindUserHash + ", 用户hash:" + unameHash);
 				if (bindUserHash == unameHash) {
 					common.log("搜索到自己的设备....");
 					if (timeout) {

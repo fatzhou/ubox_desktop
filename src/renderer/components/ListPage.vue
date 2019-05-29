@@ -36,7 +36,7 @@
                             <p class="disk-name">{{ disk.label }}</p>
                             <p
                                 class="disk-info"
-                            >{{ disk.used | fileSize }} /{{ disk.size | fileSize }} </p>
+                            >{{ disk.used | fileSize }} /{{ disk.size | fileSize }}</p>
                         </div>
                     </li>
                 </ul>
@@ -258,11 +258,12 @@ export default {
                 );
             }
 
-            this.smb2Client.createReadStream(remotePath, function(
-                err,
-                readStream
-            ) {
-                if (err) throw err;
+            this.smb2Client.createReadStream(remotePath, (err, readStream) => {
+                if (err) {
+                    // this.smb2Client.disconnect();
+                    // this.smb2Client = new SMB2(this.smbConfig);
+                    return;
+                }
                 var writeStream = fs.createWriteStream(localPath);
                 writeStream.on("finish", function() {
                     common.log("文件下载完毕....");
@@ -284,6 +285,14 @@ export default {
             this.boxPort = boxPort || 37867;
             common.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
             this.smb2Client.readdir("", (err, content) => {
+                if (err) {
+                    this.smb2Client.disconnect();
+                    this.smb2Client = new SMB2(this.smbConfig);
+                    setTimeout(() => {
+                        this.renderDisks();
+                    }, 1000);
+                    return;
+                }
                 if (!content || !content.length) {
                     return false;
                 }
@@ -351,8 +360,15 @@ export default {
             common.log("查询目录-----：" + folder);
             let self = this;
             try {
-                this.smb2Client.readdir(folder, function(err, content) {
-                    if (err) throw err;
+                this.smb2Client.readdir(folder, (err, content) => {
+                    if (err) {
+                        console.log("aaaaaaa");
+                        this.smb2Client.disconnect();
+                        this.smb2Client = new SMB2(this.smbConfig);
+                        // this.renderFileList(folder);
+                        // throw err;
+                        return;
+                    }
                     common.log(content);
                     window.content = content; //For debug
 
@@ -411,6 +427,9 @@ export default {
             let self = this;
             for (let i = 0, len = list.length; i < len; i++) {
                 let item = list[i];
+                if (item.thumbnail) {
+                    continue;
+                }
                 if (item.type == "type-image" || item.type == "type-video") {
                     let name = md5(subFolder + "/" + item.name) + ".png";
                     console.log(subFolder, "+++++++", item.name);
@@ -420,18 +439,26 @@ export default {
                             "/thumbnail/" +
                             name;
 
-                    common.log(
-                        `缩略图远程路径：${remotePath},本地路径：${localPath}`
-                    );
-                    !(function(index, value) {
-                        self.downloadFile(remotePath, localPath, () => {
-                            //下载成功
-                            value.thumbnail = "file://" + localPath;
-                            //触发UI更新
-                            // self.$set(self.fileList, index, value);
-                            self.fileList = self.fileList.slice();
-                        });
-                    })(i, item);
+                    let fileExists = fs.existsSync(localPath);
+                    // common.log("文件是否存在？" + fileExists + "," + localPath);
+                    if (fileExists) {
+                        common.log("缩略图本地已存在：" + localPath);
+                        item.thumbnail = "file://" + localPath;
+                        self.fileList = self.fileList.slice();
+                    } else {
+                        common.log(
+                            `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                        );
+                        !(function(index, value) {
+                            self.downloadFile(remotePath, localPath, () => {
+                                //下载成功
+                                value.thumbnail = "file://" + localPath;
+                                //触发UI更新
+                                // self.$set(self.fileList, index, value);
+                                self.fileList = self.fileList.slice();
+                            });
+                        })(i, item);
+                    }
                 }
             }
         },
@@ -579,10 +606,12 @@ export default {
             this.isAllSelect = false;
             this.selectFileList = [];
         },
-        changePath(path, isRefresh = false ) {
+        changePath(path, isRefresh = false) {
             if (
                 this.currPathList.indexOf(path) > -1 &&
-                this.currPathList.indexOf(path) == this.currPathList.length - 1 && !isRefresh
+                this.currPathList.indexOf(path) ==
+                    this.currPathList.length - 1 &&
+                !isRefresh
             ) {
                 return false;
             }
