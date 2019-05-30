@@ -597,14 +597,14 @@ export default {
         },
         goNextFolder(file) {
             if (file.type != "type-folder") {
-                return false;
+                this.toggleSelect(file);
+            } else {
+                let currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+                this.renderFileList(currPath, true);
+                this.isAllSelect = false;
+                this.selectFileList = [];
             }
-            let currPath =
-                this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
-
-            this.renderFileList(currPath, true);
-            this.isAllSelect = false;
-            this.selectFileList = [];
+            
         },
         changePath(path, isRefresh = false) {
             if (
