@@ -13,7 +13,7 @@ import Store from '../renderer/components/store';
 // const pg = db.init('page')
 const { dialog } = require('electron')
 const { Tray } = require('electron');
-
+var appTray = null;
 import fs from 'fs';
 
 /**
@@ -31,6 +31,10 @@ const loginURL = process.env.NODE_ENV === 'development'
 const listURL = process.env.NODE_ENV === 'development'
 	? `http://localhost:9080#list`
 	: `file://${__dirname}/index.html#list`
+
+// const appIconPath = process.env.NODE_ENV === 'development'
+// 	? `file://${__dirname}/../renderer/assets/images/icon.ico`
+// 	: `file://${__dirname}/../renderer/assets/images/icon.ico`
 
 const store = new Store({
 	// We'll call our data file 'user-preferences'
@@ -107,17 +111,7 @@ class ElectronicUbbey {
 		app.on('ready', () => {
 			this.createMainWindow();
 			this.setMenu();
-			// appIcon = new Tray('/path/to/my/icon')
-			// const contextMenu = Menu.buildFromTemplate([
-			// 	{ label: 'Item1', type: 'radio' },
-			// 	{ label: 'Item2', type: 'radio' }
-			// ])
-
-			// // Make a change to the context menu
-			// contextMenu.items[1].checked = false
-
-			// // Call this again for Linux because we modified the context menu
-			// appIcon.setContextMenu(contextMenu)
+			
 		});
 
 		app.on('activate', () => {
@@ -210,7 +204,7 @@ class ElectronicUbbey {
 						}
 					},
 					{
-						label: "下载", accelerator: "Shift+CmdOrCtrl+D", function() {
+						label: "下载", accelerator: "Shift+CmdOrCtrl+D",  click: function() {
 							//下载选中文件
 							self.mainWindow.webContents.send("download-all");
 						}
@@ -273,7 +267,7 @@ class ElectronicUbbey {
 			show: false,
 			frame: true,
 			movable: true,
-			autoHideMenuBar: true,
+			autoHideMenuBar: false,
 			// fullscreen: true,
 			// alwaysOnTop: true,
 			backgroundColor: '#302F34',
@@ -292,6 +286,22 @@ class ElectronicUbbey {
 			self.mainWindow.show();
 			self.mainWindow.focus();
 		});
+		// console.log('__dirname' + __dirname);
+ 
+		// var appIcon = new Tray(appIconPath);
+		// console.log('appIconPath' + appIconPath);
+		// // appIcon = new Tray(__dirname);
+
+		// const contextMenu = Menu.buildFromTemplate([
+		// 	{ label: 'Item1', type: 'radio' },
+		// 	{ label: 'Item2', type: 'radio' }
+		// ])
+
+		// // Make a change to the context menu
+		// contextMenu.items[1].checked = false
+
+		// // Call this again for Linux because we modified the context menu
+		// appIcon.setContextMenu(contextMenu);
 	}
 }
 
