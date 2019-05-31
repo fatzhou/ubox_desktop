@@ -72,6 +72,7 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
+		
 
 	}
 
@@ -243,7 +244,7 @@ class ElectronicUbbey {
 				submenu: [
 					{
 						label: "使用帮助", accelerator: "CmdOrCtrl+H", click() {
-							shell.openExternalSync('https://ubbey.org');
+							shell.openExternal('https://ubbey.org');
 						}
 					},
 				]
@@ -283,6 +284,10 @@ class ElectronicUbbey {
 		this.mainWindow.on('ready-to-show', function () {
 			self.mainWindow.show();
 			self.mainWindow.focus();
+		});
+		this.mainWindow.on('close', (event) => {
+			console.log('close')
+			app.quit();
 		});
 		// console.log('__dirname' + __dirname);
 
