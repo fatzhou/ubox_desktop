@@ -118,6 +118,7 @@ const FileTime = require("win32filetime");
 import fs from "fs";
 const md5 = require("md5");
 import BigInt from "@marsaud/smb2/lib/tools/BigInt";
+const querystring = require("querystring");
 
 let K = 1024,
     M = 1024 * 1024,
@@ -449,17 +450,24 @@ export default {
                         item.thumbnail = "file://" + localPath;
                         self.fileList = self.fileList.slice();
                     } else {
-                        common.log(
-                            `缩略图远程路径：${remotePath},本地路径：${localPath}`
-                        );
+                        // common.log(
+                        //     `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                        // );
                         !(function(index, value) {
-                            self.downloadFile(remotePath, localPath, () => {
-                                //下载成功
-                                value.thumbnail = "file://" + localPath;
-                                //触发UI更新
-                                // self.$set(self.fileList, index, value);
-                                self.fileList = self.fileList.slice();
-                            });
+                            let params = {
+                                fullpath: subFolder,
+                                disk_uuid: uuid,
+                                is_thumbnail: 1
+                            };
+                            console.log("发送download事件......");
+                            ipcRenderer.send("download");
+                            // self.downloadFile(remotePath, localPath, () => {
+                            //     //下载成功
+                            //     value.thumbnail = "file://" + localPath;
+                            //     //触发UI更新
+                            //     // self.$set(self.fileList, index, value);
+                            //     self.fileList = self.fileList.slice();
+                            // });
                         })(i, item);
                     }
                 }

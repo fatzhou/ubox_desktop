@@ -15,6 +15,7 @@ const { dialog } = require('electron')
 const { Tray } = require('electron');
 var appTray = null;
 import fs from 'fs';
+const { download } = require("electron-dl");
 
 /**
  * Set `__static` path to static files in production
@@ -72,7 +73,7 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
-		
+
 
 	}
 
@@ -142,6 +143,14 @@ class ElectronicUbbey {
 			// event.sender.send(this.shareObjects[key]);
 			event.returnValue = this.shareObjects[key];
 		})
+
+		ipcMain.on("download", (event, info) => {
+			console.log("下载文件：", info);
+			// download(BrowserWindow.getFocusedWindow(), info.url, info.properties)
+			// 	.then(dl => {
+			// 		window.webContents.send("download complete", dl.getSavePath())
+			// 	});
+		});
 	};
 
 	selectDirectory() {
