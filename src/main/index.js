@@ -53,11 +53,11 @@ class ElectronicUbbey {
 		console.log("thumbnailPath:" + thumbnailPath);
 
 		this.mainWindow = null;
-
 		// console.log('llll' + JSON.stringify(store));
 		// console.log('hhhh' + store.set('downloadPath', 'kkk'));
 		// console.log('jjjj' + store.get('downloadPath'));
 		let downloadPath = store.get('downloadPath');
+		console.log("下载路径：", downloadPath)
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
@@ -111,7 +111,7 @@ class ElectronicUbbey {
 		app.on('ready', () => {
 			this.createMainWindow();
 			this.setMenu();
-			
+
 		});
 
 		app.on('activate', () => {
@@ -149,7 +149,7 @@ class ElectronicUbbey {
 			properties: ['openDirectory']
 		});
 		if (path) {
-			console.log("用户已更新下载文件夹:" + path);
+			console.log("用户已更新下载文件夹:", path);
 			this.shareObjects.downloadPath = path;
 			// console.log(store)
 			store.set('downloadPath', path);
@@ -204,7 +204,7 @@ class ElectronicUbbey {
 						}
 					},
 					{
-						label: "下载", accelerator: "Shift+CmdOrCtrl+D",  click: function() {
+						label: "下载", accelerator: "Shift+CmdOrCtrl+D", click: function () {
 							//下载选中文件
 							self.mainWindow.webContents.send("download-all");
 						}
@@ -287,7 +287,7 @@ class ElectronicUbbey {
 			self.mainWindow.focus();
 		});
 		// console.log('__dirname' + __dirname);
- 
+
 		// var appIcon = new Tray(appIconPath);
 		// console.log('appIconPath' + appIconPath);
 		// // appIcon = new Tray(__dirname);

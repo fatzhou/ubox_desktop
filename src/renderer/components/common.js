@@ -12,6 +12,7 @@ var common = {
 	env: "test",
 	searching: false,
 	box: null,
+	addEventBinded: false,
 	post(url, params, opt) {
 		common.log("start to post..........");
 		return new Promise((resolve, reject) => {
@@ -105,7 +106,7 @@ var common = {
 
 			common.log("startDiscovery调用完毕.....");
 
-			let timeout = setTimeout(() => {
+			common.timeout = setTimeout(() => {
 				common.log("并未搜索到设备，超时结束.......");
 				upnp.stopDiscovery(() => {
 					common.log('stopDiscovery');
@@ -121,25 +122,29 @@ var common = {
 				// resolve(null);
 			}, 8000);
 
-			upnp.on('added', (device) => {
-				common.log("搜索到设备:", JSON.stringify(device));
-				var bindUserHash = device.device.bindUserHash,
-					boxId = device.device.boxId;
-				console.log("设备hash:" + bindUserHash + ", 用户hash:" + unameHash);
-				if (bindUserHash == unameHash) {
-					common.log("搜索到自己的设备....");
-					if (timeout) {
-						upnp.stopDiscovery(() => {
-							common.log('stop')
-							this.searching = false;
-						});
-						clearTimeout(timeout);
-						timeout = null;
+			if (!common.addEventBinded) {
+				common.addEventBinded = true;
+				upnp.on('added', (device) => {
+					common.log("搜索到设备:", JSON.stringify(device));
+					var bindUserHash = device.device.bindUserHash,
+						boxId = device.device.boxId;
+					console.log("设备hash:" + bindUserHash + ", 用户hash:" + unameHash);
+					if (bindUserHash == unameHash) {
+						common.log("搜索到自己的设备....");
+						if (common.timeout) {
+							upnp.stopDiscovery(() => {
+								common.log('stop')
+								common.searching = false;
+							});
+							clearTimeout(common.timeout);
+							common.timeout = null;
+						}
+						resolve(device);
 					}
-					this.searching = false; //stopdiscovery的回调经常执行不了，直接更改状态
-					resolve(device);
-				}
-			});
+				});
+			}
+
+
 		})
 			.catch(e => {
 				this.searching = false;

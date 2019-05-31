@@ -264,9 +264,11 @@ export default {
                     // this.smb2Client = new SMB2(this.smbConfig);
                     return;
                 }
-                var writeStream = fs.createWriteStream(localPath);
+                var writeStream = fs.createWriteStream(localPath + ".tmp");
                 writeStream.on("finish", function() {
                     common.log("文件下载完毕....");
+                    //重命名
+                    fs.renameSync(localPath + ".tmp", localPath);
                     callback && callback();
                 });
                 writeStream.on("error", function() {
@@ -599,12 +601,14 @@ export default {
             if (file.type != "type-folder") {
                 this.toggleSelect(file);
             } else {
-                let currPath = this.currPath.replace("\\" + file.name, "") + "\\" + file.name;
+                let currPath =
+                    this.currPath.replace("\\" + file.name, "") +
+                    "\\" +
+                    file.name;
                 this.renderFileList(currPath, true);
                 this.isAllSelect = false;
                 this.selectFileList = [];
             }
-            
         },
         changePath(path, isRefresh = false) {
             if (
