@@ -524,7 +524,7 @@ export default {
             if (/^(torrent)$/.test(suffix)) {
                 return "type-bt";
             }
-            return "file-name";
+            return "type-defalut";
         },
 
         transferDate(time) {
