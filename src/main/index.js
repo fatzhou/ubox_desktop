@@ -49,7 +49,13 @@ class ElectronicUbbey {
 	constructor() {
 		const appName = app.getName();
 		const appPath = path.join(app.getPath("appData"), appName);
-		const thumbnailPath = path.join(appPath, 'thumbnail');
+		let thumbnailPath = '';
+		if (fs.existsSync(appPath)) {
+			thumbnailPath = path.join(appPath, 'thumbnail');
+		} else {
+			//没有创建目录
+			thumbnailPath = process.env.HOME + "/Downloads/thumbnail";
+		}
 		console.log("appPath:" + appPath);
 		console.log("thumbnailPath:" + thumbnailPath);
 
@@ -73,8 +79,6 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
-
-
 	}
 
 	init() {
