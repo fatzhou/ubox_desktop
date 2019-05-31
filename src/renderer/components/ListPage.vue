@@ -81,6 +81,7 @@
                                         class="thumbnail"
                                         v-if="file.thumbnail"
                                         v-bind:src="file.thumbnail"
+                                        :onerror="handleError(file)"
                                     >
                                 </div>
                                 <a
@@ -657,6 +658,24 @@ export default {
             ipcRenderer.on("download-all", () => {
                 this.downloadAllFiles();
             });
+        },
+        handleError(item) {
+            // let subFolder = this.currPath.replace(uuid, "");
+            // let name = md5(subFolder + "/" + item.name) + ".png";
+            // console.log(subFolder, "+++++++", item.name);
+            // let localPath =
+            //     ipcRenderer.sendSync("get-global", "appPath") +
+            //     "/thumbnail/" +
+            //     name;
+            // let fileExists = fs.existsSync(localPath);
+            // // common.log("文件是否存在？" + fileExists + "," + localPath);
+            // if (fileExists) {
+            //     common.log("缩略图本地已存在：" + localPath);
+            //     item.thumbnail = "";
+            //     fs.unlink(localPath, () => {
+            //         console.log("delete success");
+            //     });
+            // }
         }
     }
 };

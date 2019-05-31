@@ -150,11 +150,9 @@ class ElectronicUbbey {
 		});
 		if (path) {
 			console.log("用户已更新下载文件夹:", path);
-			this.shareObjects.downloadPath = path;
-			// console.log(store)
-			store.set('downloadPath', path);
-			// console.log('jjjj' + store.get('downloadPath'));
-			// pg.set('downloadPath', path);
+			let pathStr = path.toString();
+			this.shareObjects.downloadPath = pathStr;
+			store.set('downloadPath', pathStr);
 		} else {
 			console.log("用户取消了下载文件夹变更");
 		}
