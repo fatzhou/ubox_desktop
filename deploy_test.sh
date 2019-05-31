@@ -1,1 +1,0 @@
-scp build/ubox_desktop-1.0.0.dmg work@139.199.180.239:~/test/ubox/ubox_desktop-1.0.0.dmg

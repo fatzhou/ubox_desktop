@@ -656,6 +656,7 @@ export default {
             });
         },
         handleError(item) {
+            let uuid = this.currPath.replace(/^([^/]+)\/.+$/, "$1");
             let subFolder = this.currPath.replace(uuid, "");
             let name = md5(subFolder + "/" + item.name) + ".png";
             console.log(subFolder, "+++++++", item.name);

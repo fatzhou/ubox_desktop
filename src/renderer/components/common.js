@@ -148,6 +148,10 @@ var common = {
 	},
 	createToast(err_msg) {
 		store.commit('updateToastStatus', {
+			isShowToast: false,
+			toastText: ''
+		})
+		store.commit('updateToastStatus', {
 			isShowToast: true,
 			toastText: err_msg
 		})

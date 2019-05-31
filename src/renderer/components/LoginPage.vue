@@ -85,6 +85,10 @@ export default {
         if (this.password.length > 0) {
             this.passwordActive = "active";
         }
+        this.$store.commit('updateToastStatus', {
+            isShowToast: false,
+            toastText: ''
+        });
     },
     methods: {
         usernameChange() {
