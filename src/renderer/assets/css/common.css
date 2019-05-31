@@ -830,6 +830,9 @@ a {
 .type-bt {
     background-image: url(../images/Torrent_icon.svg);
 }
+.type-defalut {
+    background-image: url(../images/Torrent_icon.svg);
+}
 
 .file-name.nobackground {
     padding-left: 0;
