@@ -10,6 +10,9 @@
                 <span class="next-btn active"></span>
             </div>
             <div
+                class="refresh-btn"
+            ><span @click="refreshFiles()"></span></div>
+            <div
                 class="download-btn"
                 v-if="selectFileList.length != 0"
                 @click="downloadAllFiles()"
@@ -19,7 +22,7 @@
                     {{ loginInfo.username }}
                     <em></em>
                 </p>
-                <span class="label" @click="logout()">Logout</span>
+                <div class="layout-box" @click="toggleLogout()"><span class="label" @click="logout()">Logout</span></div>
             </div>
         </div>
         <div class="body-box">
@@ -225,6 +228,8 @@ export default {
                 });
         },
         downloadAllFiles() {
+            let isShowToast = true;
+            isShowToast = this.selectFileList.length > 0 ? true : false; 
             this.selectFileList.map(item => {
                 if (item.type != "type-folder") {
                     common.log(" +++++ " + item.name);
@@ -233,10 +238,13 @@ export default {
             });
             this.selectFileList = [];
             this.toggleAllSelect(0);
-            common.createToast(
-                "已经成功创建下载任务至" +
-                    ipcRenderer.sendSync("get-global", "downloadPath")
-            );
+            if(isShowToast) {
+                common.createToast(
+                    "已经成功创建下载任务至" +
+                        ipcRenderer.sendSync("get-global", "downloadPath")
+                );
+            }
+            
         },
         downloadFileToLocal(name, options) {
             options = options || {};
@@ -552,9 +560,6 @@ export default {
         },
         changeDisk(disk) {
             this.disk = disk;
-            if (disk.isSelect) {
-                return false;
-            }
             this.selectFileList = [];
             this.fileList = [];
             this.disks.filter(item => {
@@ -648,8 +653,7 @@ export default {
         },
         init() {
             ipcRenderer.on("refresh-list", () => {
-                let path = this.currPathList[this.currPathList.length - 1];
-                this.changePath(path, true);
+                this.refreshFiles();
             });
             ipcRenderer.on("select-all", () => {
                 this.isAllSelect = false;
@@ -678,6 +682,10 @@ export default {
                     console.log("delete success");
                 });
             }
+        },
+        refreshFiles() {
+            let path = this.currPathList[this.currPathList.length - 1];
+            this.changePath(path, true);
         }
     }
 };

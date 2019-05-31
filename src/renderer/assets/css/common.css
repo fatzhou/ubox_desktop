@@ -37,6 +37,10 @@ a {
     cursor: pointer;
 }
 
+.no-drag {
+    -webkit-app-region: no-drag;
+}
+
 .mar-btm-20 {
     margin-bottom: 20px;
 }
@@ -204,6 +208,7 @@ a {
     -webkit-text-fill-color: transparent;
     color: #fff;
     font-size: 16px;
+    -webkit-app-region: no-drag;
 }
 
 .content-box .form-input input.error {
@@ -335,6 +340,7 @@ a {
 .main-list-box {
     width: 100%;
     height: 100%;
+    min-width: 750px;
     background: #222126;
     box-shadow: 0 0 0 0 #302F34;
     color: #fff;
@@ -399,7 +405,32 @@ a {
 .header-box .option-btn span.next-btn.active {
     background-image: url(../images/Arrow_right_02.svg);
 }
-
+.refresh-btn {
+    float: left;
+    background: #302F34;
+    border: 0.5px solid #1C1C1E;
+    border-radius: 4px;
+    width: 32px;
+    height: 24px;
+    text-align: center;
+    margin-top: 18px;
+    margin-left: 11px;
+    cursor: pointer;
+    position: relative;
+}
+.refresh-btn span {
+    position: absolute;
+    display: inline-block;
+    width: 31px;
+    height: 23px;
+    background-color: transparent;
+    top: 0;
+    left: -1px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 14px auto;
+    background-image: url(../images/Refresh.svg);
+}
 .download-btn {
     float: left;
     background: #04B776;
@@ -449,9 +480,17 @@ a {
 .header-box .username.active em {
     transform: rotate(180deg);
 }
-
-.header-box .username .label {
+.layout-box {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 888;
     display: none;
+}
+.header-box .username .label {
+    display: inline-block;
     width: 100px;
     height: 44px;
     background: #302F34;
@@ -460,14 +499,13 @@ a {
     text-align: center;
     line-height: 44px;
     position: absolute;
-    bottom: -44px;
+    top: 60px;
+    right: 35px;
     cursor: pointer;
 }
-
-.header-box .username.active .label {
-    display: inline-block;
+.header-box .username.active .layout-box {
+    display: block;
 }
-
 .body-box {
     width: 100%;
     height: calc(100% - 60px);
@@ -657,6 +695,8 @@ a {
     background: #302F34;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    text-emphasis: hidden;
 }
 
 .li-box {
@@ -665,6 +705,8 @@ a {
     padding-left: 15px;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    text-emphasis: hidden;
 }
 
 .li-box:nth-child(2n) {
@@ -696,7 +738,8 @@ a {
 }
 
 .file-name {
-    width: calc(50% - 25px);
+    width: calc(100% - 352px);
+    min-width: 160px;
     /* padding-left: 32px; */
     /* background-image: url(../images/Default_icon.svg);
     background-position: 0 center;
@@ -705,6 +748,7 @@ a {
     position: relative;
     display: flex;
     align-items: center;
+    
 }
 
 .file-type {
@@ -793,9 +837,14 @@ a {
 }
 
 .file-size {
-    width: 25%;
+    width: 150px;
+    text-indent: 10px; 
 }
-
+.file-title .file-size {
+    border-right: .5px solid #1C1C1E;
+    border-left: .5px solid #1C1C1E;
+}
 .file-time {
-    width: 25%;
+    width: 190px;
+    text-indent: 10px; 
 }
