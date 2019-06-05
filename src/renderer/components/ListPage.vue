@@ -143,7 +143,7 @@ export default {
             boxPort: "",
             userInfo: {},
             loginInfo: {},
-            smb2Client: {},
+            smb2Client: null,
             smbConfig: null,
             toastStr: "",
             disks: [],
@@ -225,13 +225,14 @@ export default {
                         this.smbConfig = {
                             share: "\\\\" + boxIp + "\\" + res.tag,
                             domain: res.tag,
-                            autoCloseTimeout: 0, //设置此参数以后不会自动关闭连接，需要手动调用smb2Client.disconnect();
+                            autoCloseTimeout: 30000, //设置此参数以后不会自动关闭连接，需要手动调用smb2Client.disconnect();
                             username: res.samba_uname,
                             password: res.samba_pwd
                             // username: this.loginInfo.username,
                             // password: this.loginInfo.password,
                         };
-                        this.smb2Client = new SMB2(this.smbConfig);
+                        this.reConnectSamba();
+
                         this.renderDisks();
                     }
                 });
@@ -273,7 +274,7 @@ export default {
                         ipcRenderer.sendSync("get-global", "downloadPath")
                 );
             }
-
+            this.reConnectSamba();
             this.smb2Client.createReadStream(remotePath, (err, readStream) => {
                 if (err) {
                     // this.smb2Client.disconnect();
@@ -302,6 +303,7 @@ export default {
             this.boxIp = boxIp;
             this.boxPort = boxPort || 37867;
             common.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
+            this.reConnectSamba();
             this.smb2Client.readdir("", (err, content) => {
                 if (err) {
                     console.log("samba读取错误");
@@ -376,8 +378,21 @@ export default {
                 return (size / Math.pow(2, 30)).toFixed(2);
             }
         },
+        reConnectSamba() {
+            if (
+                !this.smb2Client ||
+                this.smb2Client.socket.readyState == "closed"
+            ) {
+                console.log("Start to init samba connect....");
+                this.smb2Client = new SMB2(this.smbConfig);
+                this.smb2Client.socket.on("close", () => {
+                    console.log("Samba closed......");
+                });
+            }
+        },
         renderFileList(folder, isInitPath = false) {
             common.log("查询目录-----：" + folder);
+            this.reConnectSamba();
             let self = this;
             try {
                 this.smb2Client.readdir(folder, (err, content) => {
@@ -431,7 +446,9 @@ export default {
                     });
                     //图片文件获取缩略图
                     self.fileList = folderList.concat(fileList);
-                    self.getThumbnail(folder, fileList);
+                    setTimeout(() => {
+                        self.getThumbnail(folder, fileList);
+                    }, 200);
                 });
             } catch (e) {
                 console.log("Readdir catch.......");
@@ -451,36 +468,48 @@ export default {
                 if (item.thumbnail) {
                     continue;
                 }
-                if (item.type == "type-image" || item.type == "type-video") {
-                    let name = md5(subFolder + "/" + item.name) + ".png";
-                    let remotePath = uuid + "\\thumbnail.uploading\\" + name,
-                        localPath =
-                            ipcRenderer.sendSync("get-global", "appPath") +
-                            "/thumbnail/" +
-                            name,
-                        localFullPath = localPath + ".tmp";
+                setTimeout(() => {
+                    !(function(item) {
+                        if (
+                            item.type == "type-image" ||
+                            item.type == "type-video"
+                        ) {
+                            let name =
+                                md5(subFolder + "/" + item.name) + ".png";
+                            let remotePath =
+                                    uuid + "\\thumbnail.uploading\\" + name,
+                                localPath =
+                                    ipcRenderer.sendSync(
+                                        "get-global",
+                                        "appPath"
+                                    ) +
+                                    "/thumbnail/" +
+                                    name,
+                                localFullPath = localPath + ".tmp";
 
-                    let fileExists = fs.existsSync(localPath);
-                    // common.log("文件是否存在？" + fileExists + "," + localPath);
-                    if (fileExists) {
-                        common.log("缩略图本地已存在：" + localPath);
-                        item.thumbnail = "file://" + localPath;
-                        self.fileList = self.fileList.slice();
-                    } else {
-                        // common.log(
-                        //     `缩略图远程路径：${remotePath},本地路径：${localPath}`
-                        // );
-                        let params = {
-                            fullpath: subFolder + "/" + item.name,
-                            disk_uuid: uuid,
-                            is_thumbnail: 1
-                        };
-                        self.downloadThumbnail(params, item, {
-                            localFullPath,
-                            localPath
-                        });
-                    }
-                }
+                            let fileExists = fs.existsSync(localPath);
+                            // common.log("文件是否存在？" + fileExists + "," + localPath);
+                            if (fileExists) {
+                                common.log("缩略图本地已存在：" + localPath);
+                                item.thumbnail = "file://" + localPath;
+                                self.fileList = self.fileList.slice();
+                            } else {
+                                // common.log(
+                                //     `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                                // );
+                                let params = {
+                                    fullpath: subFolder + "/" + item.name,
+                                    disk_uuid: uuid,
+                                    is_thumbnail: 1
+                                };
+                                self.downloadThumbnail(params, item, {
+                                    localFullPath,
+                                    localPath
+                                });
+                            }
+                        }
+                    })(item);
+                }, i * 100);
             }
         },
         downloadThumbnail(params, item, opt) {
@@ -672,6 +701,10 @@ export default {
                 this.renderFileList(currPath, true);
                 this.isAllSelect = false;
                 this.selectFileList = [];
+                //进入下一级目录: 倘若是“连续”的，应当push进入navBackList, 否则，只把当前目录列入即可
+                if (this.currPathList.length <= 2) {
+                    this.navBackList = [];
+                }
             }
         },
         changePath(path, isRefresh = false) {
@@ -683,6 +716,7 @@ export default {
             ) {
                 return false;
             }
+            //重置currPathList和currPath
             if (this.currPathList.indexOf(path) > -1) {
                 this.currPath = "";
                 let pathList = [];
@@ -697,24 +731,34 @@ export default {
                 this.initCurrPath();
             }
             common.log(this.currPath);
+            //渲染新的currPath
             this.renderFileList(this.currPath);
         },
         initCurrPath() {
+            //用于显示的path
             this.currPathList = this.currPath.split("\\");
             this.currPathList[0] = this.disk.label;
-            this.navBackList = [];
         },
         goBack() {
             if (this.currPathList.length >= 2) {
                 let path = this.currPathList[this.currPathList.length - 2];
                 this.navBackList.push(this.currPath);
+                console.log(
+                    "返回---填充navBackList:" + this.navBackList.length
+                );
+                console.log(this.currPath);
                 this.changePath(path);
             }
         },
         goNext() {
             if (this.navBackList.length > 0) {
                 let path = this.navBackList.pop();
-                this.changePath(path);
+                console.log("进入下一级目录：" + path);
+                this.renderFileList(path);
+                //重新计算this.currPath，这个用于请求
+                this.currPath = path;
+                //更新用于显示的path
+                this.initCurrPath();
             }
         },
         init() {
@@ -732,16 +776,16 @@ export default {
         handleError(item) {
             console.log("获取缩略图失败...");
 
-            // if (item.thumbnail) {
-            //     let localPath = item.thumbnail.replace(/^file:\/\//, "");
-            //     let fileExists = fs.existsSync(localPath);
-            //     if (fileExists) {
-            //         item.thumbnail = "";
-            //         fs.unlink(localPath, () => {
-            //             console.log("delete success");
-            //         });
-            //     }
-            // }
+            if (item.thumbnail) {
+                let localPath = item.thumbnail.replace(/^file:\/\//, "");
+                let fileExists = fs.existsSync(localPath);
+                if (fileExists) {
+                    item.thumbnail = "";
+                    fs.unlink(localPath, () => {
+                        console.log("delete success");
+                    });
+                }
+            }
         },
         refreshFiles() {
             let path = this.currPathList[this.currPathList.length - 1];
