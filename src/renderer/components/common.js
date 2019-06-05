@@ -31,8 +31,7 @@ var common = {
 				},
 				method: 'POST'
 			};
-			let postTool = http;
-			var req = postTool.request(options, (res) => {
+			var req = http.request(options, (res) => {
 				if (res.headers['set-cookie']) {
 					let cookie = res.headers['set-cookie'];
 					ipcRenderer.send('update-global', 'cookie', cookie);
@@ -73,6 +72,36 @@ var common = {
 			req.end();
 		})
 
+	},
+	getFile(opt) {
+		common.log(
+			"开始下载缩略图",
+			JSON.stringify(opt)
+		);
+		var options = {
+			// hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
+			hostname: '192.168.0.2',
+			port: '37867',
+			path: "/ubeybox/file/download",
+			// path: (this.env == 'test' && !common.box) ? '/iamtest' + url : url,
+			// headers: {
+			// 	'Content-Type': 'application/x-www-form-urlencoded',
+			// 	'cookie': cookie
+			// },
+			method: 'POST'
+		};
+		http.request(options, res => {
+			console.log("收到结果响应......");
+			// res.setEncoding("utf8");
+			// var data = "";
+			// res.on("data", chunk => {
+			// 	// process.stdout.write(d);
+			// 	data += chunk;
+			// });
+			// res.on("end", () => {
+			// 	console.log("下载完毕.....", data);
+			// });
+		});
 	},
 	setBox(box) {
 		this.box = box;

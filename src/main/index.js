@@ -15,6 +15,7 @@ const { dialog } = require('electron')
 const { Tray } = require('electron');
 var appTray = null;
 import fs from 'fs';
+const { download } = require("electron-dl");
 
 /**
  * Set `__static` path to static files in production
@@ -48,7 +49,13 @@ class ElectronicUbbey {
 	constructor() {
 		const appName = app.getName();
 		const appPath = path.join(app.getPath("appData"), appName);
-		const thumbnailPath = path.join(appPath, 'thumbnail');
+		let thumbnailPath = '';
+		if (fs.existsSync(appPath)) {
+			thumbnailPath = path.join(appPath, 'thumbnail');
+		} else {
+			//没有创建目录
+			thumbnailPath = process.env.HOME + "/Downloads/thumbnail";
+		}
 		console.log("appPath:" + appPath);
 		console.log("thumbnailPath:" + thumbnailPath);
 
@@ -72,8 +79,6 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
-		
-
 	}
 
 	init() {
@@ -112,7 +117,6 @@ class ElectronicUbbey {
 		app.on('ready', () => {
 			this.createMainWindow();
 			this.setMenu();
-
 		});
 
 		app.on('activate', () => {
@@ -254,7 +258,6 @@ class ElectronicUbbey {
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 	}
 
-
 	createMainWindow() {
 		var self = this;
 		this.mainWindow = new BrowserWindow({
@@ -271,6 +274,7 @@ class ElectronicUbbey {
 			// alwaysOnTop: true,
 			backgroundColor: '#302F34',
 			titleBarStyle: 'hidden',
+			fullscreenWindowTitle: true,
 			webPreferences: {
 				nodeIntegration: true,
 				webSecurity: false,

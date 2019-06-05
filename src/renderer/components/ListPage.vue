@@ -7,11 +7,15 @@
                     :class="currPathList.length >= 2 ? '' : 'active'"
                     @click="goBack()"
                 ></span>
-                <span class="next-btn active"></span>
+                <span
+                    class="next-btn"
+                    :class="navBackList.length > 0 ? '' : 'active'"
+                    @click="goNext()"
+                ></span>
             </div>
-            <div
-                class="refresh-btn"
-            ><span @click="refreshFiles()"></span></div>
+            <div class="refresh-btn">
+                <span @click="refreshFiles()"></span>
+            </div>
             <div
                 class="download-btn"
                 v-if="selectFileList.length != 0"
@@ -22,7 +26,9 @@
                     {{ loginInfo.username }}
                     <em></em>
                 </p>
-                <div class="layout-box" @click="toggleLogout()"><span class="label" @click="logout()">Logout</span></div>
+                <div class="layout-box" @click="toggleLogout()">
+                    <span class="label" @click="logout()">Logout</span>
+                </div>
             </div>
         </div>
         <div class="body-box">
@@ -84,7 +90,7 @@
                                         class="thumbnail"
                                         v-if="file.thumbnail"
                                         v-bind:src="file.thumbnail"
-                                        :onerror="handleError(file)"
+                                        @error="handleError(file)"
                                     >
                                 </div>
                                 <a
@@ -121,6 +127,8 @@ const FileTime = require("win32filetime");
 import fs from "fs";
 const md5 = require("md5");
 import BigInt from "@marsaud/smb2/lib/tools/BigInt";
+const querystring = require("querystring");
+const http = require("http");
 
 let K = 1024,
     M = 1024 * 1024,
@@ -140,6 +148,7 @@ export default {
             toastStr: "",
             disks: [],
             fileList: [],
+            navBackList: [],
             currPath: "",
             selectFileList: [],
             isShowLogout: false,
@@ -229,22 +238,20 @@ export default {
         },
         downloadAllFiles() {
             let isShowToast = true;
-            isShowToast = this.selectFileList.length > 0 ? true : false; 
+            isShowToast = this.selectFileList.length > 0 ? true : false;
             this.selectFileList.map(item => {
                 if (item.type != "type-folder") {
-                    common.log(" +++++ " + item.name);
                     this.downloadFileToLocal(item.name);
                 }
             });
             this.selectFileList = [];
             this.toggleAllSelect(0);
-            if(isShowToast) {
+            if (isShowToast) {
                 common.createToast(
                     "已经成功创建下载任务至" +
                         ipcRenderer.sendSync("get-global", "downloadPath")
                 );
             }
-            
         },
         downloadFileToLocal(name, options) {
             options = options || {};
@@ -297,6 +304,7 @@ export default {
             common.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
             this.smb2Client.readdir("", (err, content) => {
                 if (err) {
+                    console.log("samba读取错误");
                     this.smb2Client.disconnect();
                     this.smb2Client = new SMB2(this.smbConfig);
                     setTimeout(() => {
@@ -307,6 +315,7 @@ export default {
                 if (!content || !content.length) {
                     return false;
                 }
+                console.log("开始获取磁盘状态....");
                 this.currPath = content[0].Filename;
                 common
                     .post(
@@ -339,7 +348,7 @@ export default {
                                         );
                                 disks.push({
                                     isSelect: false,
-                                    name: cont.Filename,
+                                    name: item.uuid,
                                     label: label,
                                     size: item.size,
                                     used: item.used
@@ -433,8 +442,9 @@ export default {
         },
         getThumbnail(folder, list) {
             common.log("获取以下缩略图：", folder);
-            let uuid = folder.replace(/^([^/]+)\/.+$/, "$1");
-            let subFolder = folder.replace(uuid, "");
+            let regularFolder = folder.replace(/\\/g, "/");
+            let uuid = regularFolder.replace(/^([^/]+)\/.+$/, "$1");
+            let subFolder = regularFolder.replace(uuid, "");
             let self = this;
             for (let i = 0, len = list.length; i < len; i++) {
                 let item = list[i];
@@ -443,12 +453,12 @@ export default {
                 }
                 if (item.type == "type-image" || item.type == "type-video") {
                     let name = md5(subFolder + "/" + item.name) + ".png";
-                    console.log(subFolder, "+++++++", item.name);
                     let remotePath = uuid + "\\thumbnail.uploading\\" + name,
                         localPath =
                             ipcRenderer.sendSync("get-global", "appPath") +
                             "/thumbnail/" +
-                            name;
+                            name,
+                        localFullPath = localPath + ".tmp";
 
                     let fileExists = fs.existsSync(localPath);
                     // common.log("文件是否存在？" + fileExists + "," + localPath);
@@ -457,21 +467,69 @@ export default {
                         item.thumbnail = "file://" + localPath;
                         self.fileList = self.fileList.slice();
                     } else {
-                        common.log(
-                            `缩略图远程路径：${remotePath},本地路径：${localPath}`
-                        );
-                        !(function(index, value) {
-                            self.downloadFile(remotePath, localPath, () => {
-                                //下载成功
-                                value.thumbnail = "file://" + localPath;
-                                //触发UI更新
-                                // self.$set(self.fileList, index, value);
-                                self.fileList = self.fileList.slice();
-                            });
-                        })(i, item);
+                        // common.log(
+                        //     `缩略图远程路径：${remotePath},本地路径：${localPath}`
+                        // );
+                        let params = {
+                            fullpath: subFolder + "/" + item.name,
+                            disk_uuid: uuid,
+                            is_thumbnail: 1
+                        };
+                        self.downloadThumbnail(params, item, {
+                            localFullPath,
+                            localPath
+                        });
                     }
                 }
             }
+        },
+        downloadThumbnail(params, item, opt) {
+            console.log("下载参数", params);
+            let self = this;
+            let options = {
+                hostname: self.boxIp,
+                port: self.boxPort,
+                path: `/ubeybox/file/download?${querystring.stringify(params)}`,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    cookie: ipcRenderer.sendSync("get-global", "cookie")
+                },
+                method: "GET"
+            };
+            // common.log(JSON.stringify(options));
+            // common.getFile(options);
+            var out = fs.createWriteStream(opt.localFullPath);
+            let req = http.request(options, res => {
+                var contentLength = parseInt(res.headers["content-length"]);
+
+                var downLength = 0;
+
+                res.on("data", chunk => {
+                    downLength += chunk.length;
+                    // data += chunk;
+                    out.write(chunk, () => {});
+                });
+                res.on("end", () => {
+                    if (downLength != contentLength) {
+                        common.log(
+                            "Content length not equal:" +
+                                downLength +
+                                "," +
+                                contentLength
+                        );
+                    }
+                    common.log("文件下载完成：", opt.localPath);
+                    //重命名
+                    fs.renameSync(opt.localFullPath, opt.localPath);
+                    item.thumbnail = "file://" + opt.localPath;
+                    self.fileList = self.fileList.slice();
+                });
+            });
+            req.write(querystring.stringify(params));
+            req.on("error", e => {
+                console.log("Download error for " + opt.localPath, e);
+            });
+            req.end();
         },
         getFileType(name) {
             //TODO: 根据名字后缀，计算file type
@@ -644,10 +702,18 @@ export default {
         initCurrPath() {
             this.currPathList = this.currPath.split("\\");
             this.currPathList[0] = this.disk.label;
+            this.navBackList = [];
         },
         goBack() {
             if (this.currPathList.length >= 2) {
                 let path = this.currPathList[this.currPathList.length - 2];
+                this.navBackList.push(this.currPath);
+                this.changePath(path);
+            }
+        },
+        goNext() {
+            if (this.navBackList.length > 0) {
+                let path = this.navBackList.pop();
                 this.changePath(path);
             }
         },
@@ -664,24 +730,18 @@ export default {
             });
         },
         handleError(item) {
-            let uuid = this.currPath.replace(/^([^/]+)\/.+$/, "$1");
-            let subFolder = this.currPath.replace(uuid, "");
-            let name = md5(subFolder + "/" + item.name) + ".png";
-            console.log(subFolder, "+++++++", item.name);
-            let localPath =
-                ipcRenderer.sendSync("get-global", "appPath") +
-                "/thumbnail/" +
-                name;
+            console.log("获取缩略图失败...");
 
-            let fileExists = fs.existsSync(localPath);
-            // common.log("文件是否存在？" + fileExists + "," + localPath);
-            if (fileExists) {
-                common.log("缩略图本地已存在：" + localPath);
-                item.thumbnail = "";
-                fs.unlink(localPath, () => {
-                    console.log("delete success");
-                });
-            }
+            // if (item.thumbnail) {
+            //     let localPath = item.thumbnail.replace(/^file:\/\//, "");
+            //     let fileExists = fs.existsSync(localPath);
+            //     if (fileExists) {
+            //         item.thumbnail = "";
+            //         fs.unlink(localPath, () => {
+            //             console.log("delete success");
+            //         });
+            //     }
+            // }
         },
         refreshFiles() {
             let path = this.currPathList[this.currPathList.length - 1];
