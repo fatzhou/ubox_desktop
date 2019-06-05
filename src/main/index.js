@@ -117,7 +117,6 @@ class ElectronicUbbey {
 		app.on('ready', () => {
 			this.createMainWindow();
 			this.setMenu();
-
 		});
 
 		app.on('activate', () => {
@@ -147,14 +146,6 @@ class ElectronicUbbey {
 			// event.sender.send(this.shareObjects[key]);
 			event.returnValue = this.shareObjects[key];
 		})
-
-		ipcMain.on("download", (event, info) => {
-			console.log("下载文件：", info);
-			// download(BrowserWindow.getFocusedWindow(), info.url, info.properties)
-			// 	.then(dl => {
-			// 		window.webContents.send("download complete", dl.getSavePath())
-			// 	});
-		});
 	};
 
 	selectDirectory() {
@@ -267,7 +258,6 @@ class ElectronicUbbey {
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 	}
 
-
 	createMainWindow() {
 		var self = this;
 		this.mainWindow = new BrowserWindow({
@@ -284,6 +274,7 @@ class ElectronicUbbey {
 			// alwaysOnTop: true,
 			backgroundColor: '#302F34',
 			titleBarStyle: 'hidden',
+			fullscreenWindowTitle: true,
 			webPreferences: {
 				nodeIntegration: true,
 				webSecurity: false,
