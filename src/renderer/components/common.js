@@ -43,7 +43,7 @@ var common = {
 					data += chunk;
 				});
 				res.on('end', () => {
-					common.log('请求响应：' + data + ",url:" + url);
+					common.log('Request response: ' + data + ", url:" + url);
 					var res = {};
 					try {
 						res = JSON.parse(data);
@@ -68,40 +68,10 @@ var common = {
 				reject(e);
 			});
 			req.write(querystring.stringify(params));
-			common.log("请求已发送:" + url + ",参数：" + querystring.stringify(params));
+			common.log("Request sent:" + url + ",params：" + querystring.stringify(params));
 			req.end();
 		})
 
-	},
-	getFile(opt) {
-		common.log(
-			"开始下载缩略图",
-			JSON.stringify(opt)
-		);
-		var options = {
-			// hostname: (common.box && common.box.boxIp) || (this.env == "test" ? 'www.yqtc.co' : 'api.yqtc.co'),
-			hostname: '192.168.0.2',
-			port: '37867',
-			path: "/ubeybox/file/download",
-			// path: (this.env == 'test' && !common.box) ? '/iamtest' + url : url,
-			// headers: {
-			// 	'Content-Type': 'application/x-www-form-urlencoded',
-			// 	'cookie': cookie
-			// },
-			method: 'POST'
-		};
-		http.request(options, res => {
-			console.log("收到结果响应......");
-			// res.setEncoding("utf8");
-			// var data = "";
-			// res.on("data", chunk => {
-			// 	// process.stdout.write(d);
-			// 	data += chunk;
-			// });
-			// res.on("end", () => {
-			// 	console.log("下载完毕.....", data);
-			// });
-		});
 	},
 	setBox(box) {
 		this.box = box;
@@ -114,13 +84,12 @@ var common = {
 	},
 	discovery(unameHash) {
 		return new Promise((resolve, reject) => {
-			common.log("即将开始搜索盒子.....");
+			common.log("Start to discovery box.....");
 			if (this.searching) {
-				common.log("正在搜索.....");
+				common.log("Searching.....");
 				reject('searching');
 			}
 			this.searching = true;
-			common.log("开始调用startDiscovery.....");
 
 			try {
 				upnp.startDiscovery({
@@ -128,15 +97,12 @@ var common = {
 					mx: 3
 				});
 			} catch (e) {
-				console.log("哎哎哎", e);
 				throw e;
 			}
 
 
-			common.log("startDiscovery调用完毕.....");
-
 			common.timeout = setTimeout(() => {
-				common.log("并未搜索到设备，超时结束.......");
+				common.log("No device found.......");
 				upnp.stopDiscovery(() => {
 					common.log('stopDiscovery');
 					this.searching = false;
@@ -154,10 +120,10 @@ var common = {
 			if (!common.addEventBinded) {
 				common.addEventBinded = true;
 				upnp.on('added', (device) => {
-					common.log("搜索到设备:", JSON.stringify(device));
+					common.log("Discovery device:", JSON.stringify(device));
 					var bindUserHash = device.device.bindUserHash,
 						boxId = device.device.boxId;
-					console.log("设备hash:" + bindUserHash + ", 用户hash:" + unameHash);
+					console.log("Device user hash:" + bindUserHash + ", Current hash:" + unameHash);
 					if (bindUserHash == unameHash) {
 						common.log("搜索到自己的设备....");
 						if (common.timeout) {
@@ -172,8 +138,6 @@ var common = {
 					}
 				});
 			}
-
-
 		})
 			.catch(e => {
 				this.searching = false;

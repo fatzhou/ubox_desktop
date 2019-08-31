@@ -1,0 +1,45 @@
+{
+	"ABOUT": "About",
+	"SETPATH": "Set Download Path",
+	"CHECKUPDATE": "Check Update",
+	"NEWESTVERSION": "The current version is the newest one",
+	"DEVELOPERMODE": "Developer Mode",
+	"QUIT": "Quit",
+
+	"EDIT": "Edit",
+	"ALL": "All",
+	"DOWNLOAD": "Download",
+	"REFRESH": "Refresh",
+	"OPENPATH": "Open download folder in finder",
+
+	"WINDOW": "Window",
+	"MINIMIZE": "Minimize",
+	"ZOOM": "Zoom",
+	"HELP": "Help",
+	"USEHELP": "More Guidance",
+	"LANGUAGE": "Language",
+
+	"LOGIN": "Login",
+	"SLOGAN1": "Beyond blockchain",
+	"SLOGAN2": "open the gate to the decentralized future",
+
+	"EMAIL": "Email",
+	"PASSWORD": "Password",
+	"LOGINBTN": "Log in",
+	"USERNAMEHOLDER": "Please enter your username",
+	"PASSWORDHOLDER": "Please enter your password",
+
+	"NOUSERNAME": "Username should not be empty",
+	"NOPASSWORD": "Password should not be empty",
+	"NODEVICE": "Your binding device is not online. Please check the network and power status",
+	"NETWORKERROR": "Network connection failed, please check.",
+
+	"TIME": "Recently editting time",
+	"LOGOUT": "Logout",
+	"FILENAME": "File Name",
+	"CONNECTED": "Connected",
+	"SIZE": "Size",
+
+	"DOWNLOADSUCCESS": "Successfully download file to ",
+	"CREATETASKSUCCEED": "Successfully create download task to "
+}

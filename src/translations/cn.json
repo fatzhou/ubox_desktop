@@ -1,0 +1,45 @@
+{
+	"ABOUT": "关于",
+	"SETPATH": "设置下载文件夹",
+	"CHECKUPDATE": "检查更新",
+	"NEWESTVERSION": "您当前已是最新版",
+	"DEVELOPERMODE": "开发者模式",
+	"QUIT": "退出",
+
+	"EDIT": "编辑",
+	"ALL": "全选",
+	"DOWNLOAD": "下载",
+	"REFRESH": "刷新",
+	"OPENPATH": "打开下载文件夹",
+
+	"WINDOW": "窗口",
+	"MINIMIZE": "最小化",
+	"ZOOM": "缩放",
+	"HELP": "帮助",
+	"USEHELP": "使用帮助",
+	"LANGUAGE": "语言",
+
+	"LOGIN": "登录",
+	"SLOGAN1": "触摸区块链",
+	"SLOGAN2": "打开去中心化世界的大门",
+
+	"EMAIL": "用户名",
+	"PASSWORD": "密码",
+	"LOGINBTN": "登录",
+	"USERNAMEHOLDER": "请输入您的用户名",
+	"PASSWORDHOLDER": "请输入您的密码",
+
+	"NOUSERNAME": "用户名不能为空",
+	"NOPASSWORD": "密码不能为空",
+	"NODEVICE": "您的设备不在线，请检查电源和网络状态",
+	"NETWORKERROR": "网络错误，请稍候再试",
+
+	"TIME": "最近修改时间",
+	"LOGOUT": "登出",
+	"FILENAME": "文件名",
+	"CONNECTED": "已连接",
+	"SIZE": "大小",
+
+	"DOWNLOADSUCCESS": "已成功下载任务至",
+	"CREATETASKSUCCEED": "已创建下载任务至"
+}

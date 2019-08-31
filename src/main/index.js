@@ -6,7 +6,6 @@ import path from 'path';
 const { shell } = require('electron') // deconstructing assignment
 import Store from '../renderer/components/store';
 
-
 // const LNDB = require('lndb')
 // const db = new LNDB('your/path')
 // 初始类型
@@ -42,9 +41,14 @@ const store = new Store({
 	configName: 'ubbey-info',
 	defaults: {
 		// 800x600 is the default size of our window
-		downloadPath: process.env.HOME + "/Downloads"
+		downloadPath: process.env.HOME + "/Downloads",
+		currLang: app.getLocale()
 	}
 });
+
+const langList = ['cn', 'en'];
+
+
 class ElectronicUbbey {
 	constructor() {
 		const appName = app.getName();
@@ -60,11 +64,8 @@ class ElectronicUbbey {
 		console.log("thumbnailPath:" + thumbnailPath);
 
 		this.mainWindow = null;
-		// console.log('llll' + JSON.stringify(store));
-		// console.log('hhhh' + store.set('downloadPath', 'kkk'));
-		// console.log('jjjj' + store.get('downloadPath'));
 		let downloadPath = store.get('downloadPath');
-		console.log("下载路径：", downloadPath)
+		console.log("Download path:", downloadPath)
 		this.shareObjects = {
 			box: null,
 			userInfo: null,
@@ -79,6 +80,15 @@ class ElectronicUbbey {
 		if (!fs.existsSync(thumbnailPath)) {
 			fs.mkdirSync(thumbnailPath);
 		}
+
+		//初始化语言
+		let lang = store.get('currLang');
+		if (langList.indexOf(lang) == -1) {
+			lang = 'en'
+		}
+		this.currLang = lang;
+		this.langFile = {};
+		this.setLanguage(lang);
 	}
 
 	init() {
@@ -146,20 +156,23 @@ class ElectronicUbbey {
 			// event.sender.send(this.shareObjects[key]);
 			event.returnValue = this.shareObjects[key];
 		})
+
+		ipcMain.on('get-lang', (event, key) => {
+			// event.sender.send(this.shareObjects[key]);
+			event.returnValue = this.langFile[this.currLang];
+		})
 	};
 
 	selectDirectory() {
-		console.log("++++++++++++")
 		let path = dialog.showOpenDialog(this.mainWindow, {
 			properties: ['openDirectory']
 		});
 		if (path) {
-			console.log("用户已更新下载文件夹:", path);
+			console.log("User update download path:", path);
 			let pathStr = path.toString();
 			this.shareObjects.downloadPath = pathStr;
 			store.set('downloadPath', pathStr);
 		} else {
-			console.log("用户取消了下载文件夹变更");
 		}
 	}
 
@@ -170,68 +183,78 @@ class ElectronicUbbey {
 			{
 				label: app.getName(),
 				submenu: [
-					{ label: "关于", accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
+					{ label: self.__("ABOUT"), accelerator: "CmdOrCtrl+B", selector: "orderFrontStandardAboutPanel:" },
 					{
-						label: "设置下载文件夹", accelerator: "Shift+CmdOrCtrl+O", click: function () {
-							console.log("------");
+						label: self.__("SETPATH"), accelerator: "Shift+CmdOrCtrl+O", click: function () {
 							//设置下载文件夹
 							self.selectDirectory();
 
 						}
 					},
 					{
-						label: "检查更新", accelerator: "CmdOrCtrl+U", click: function () {
+						label: self.__("CHECKUPDATE"), accelerator: "CmdOrCtrl+U", click: function () {
 							//TODO
 							// const appIcon = new Tray('assets/images/icon.png');
 
 							dialog.showMessageBox(self.mainWindow, {
-								title: "检查更新",
-								message: "您当前已经是最新版本"
+								title: self.__("CHECKUPDATE"),
+								message: self.__("NEWESTVERSION")
 							});
 						}
 					},
 					{
-						label: "退出", accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); }
+						label: self.__("DEVELOPERMODE"), accelerator: "Shift+CmdOrCtrl+Q", click: function () {
+							let isOpened = self.mainWindow.webContents.isDevToolsOpened();
+							console.log(isOpened)
+							if (isOpened) {
+								self.mainWindow.webContents.closeDevTools();
+							} else {
+								self.mainWindow.webContents.openDevTools();
+							}
+						}
+					},
+					{
+						label: self.__("QUIT"), accelerator: "CmdOrCtrl+Q", click: function () { app.quit(); }
 					}
 				]
 			},
 			// { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } },
 			{
-				label: "编辑",
+				label: self.__("EDIT"),
 				submenu: [
 
 					{
-						label: "全选", accelerator: "CmdOrCtrl+A", click: function () {
+						label: self.__("ALL"), accelerator: "CmdOrCtrl+A", click: function () {
 							//选中所有
 							self.mainWindow.webContents.send("select-all")
 						}
 					},
 					{
-						label: "下载", accelerator: "Shift+CmdOrCtrl+D", click: function () {
+						label: self.__("DOWNLOAD"), accelerator: "Shift+CmdOrCtrl+D", click: function () {
 							//下载选中文件
 							self.mainWindow.webContents.send("download-all");
 						}
 					},
 					{ type: "separator" },
 					{
-						label: "刷新", accelerator: "CmdOrCtrl+F", click: function () {
+						label: self.__("REFRESH"), accelerator: "CmdOrCtrl+F", click: function () {
 							//刷新列表
 							self.mainWindow.webContents.send("refresh-list");
 						}
 					},
 					{
-						label: "打开下载文件夹", accelerator: "CmdOrCtrl+O", click: function () {
+						label: self.__("OPENPATH"), accelerator: "CmdOrCtrl+O", click: function () {
 							shell.openItem(self.shareObjects.downloadPath); //打开下载文件夹
 						}
 					}
 				],
 			},
 			{
-				label: "窗口",
+				label: self.__("WINDOW"),
 				submenu: [
-					{ label: "最小化", accelerator: "CmdOrCtrl+M", role: "minimize" },
+					{ label: self.__("MINIMIZE"), accelerator: "CmdOrCtrl+M", role: "minimize" },
 					{
-						label: "缩放", accelerator: "Shift+CmdOrCtrl+Z", click: function () {
+						label: self.__("ZOOM"), accelerator: "Shift+CmdOrCtrl+Z", click: function () {
 							Common.ISMAX = !Common.ISMAX;
 							if (Common.ISMAX) {
 								self.mainWindow.maximize();
@@ -244,18 +267,71 @@ class ElectronicUbbey {
 				]
 			},
 			{
-				label: "帮助",
+				label: self.__("HELP"),
 				submenu: [
 					{
-						label: "使用帮助", accelerator: "CmdOrCtrl+H", click() {
+						label: self.__("USEHELP"), accelerator: "CmdOrCtrl+H", click() {
 							shell.openExternal('https://ubbey.org');
 						}
 					},
 				]
-			}];
-
-
+			},
+			{
+				label: self.__("LANGUAGE"),
+				submenu: [
+					{
+						label: "中文", accelerator: "Shift+CmdOrCtrl+L+1", click() {
+							if (self.currLang != 'cn') {
+								self.currLang = "cn"
+								self.setLanguage("cn");
+								//通知渲染进程更新
+								self.mainWindow.webContents.send("lang-changed", "cn");
+								self.setMenu();
+								store.set('currLang', 'cn')
+							}
+						}
+					},
+					{
+						label: "English", accelerator: "Shift+CmdOrCtrl+L+2", click() {
+							if (self.currLang != 'en') {
+								self.currLang = "en"
+								self.setLanguage("en");
+								self.mainWindow.webContents.send("lang-changed", "en");
+								self.setMenu();
+								store.set('currLang', 'en')
+							}
+						}
+					},
+				]
+			},
+		];
 		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+	}
+
+	setLanguage(lang) {
+		if (this.langFile[lang]) {
+			return this.langFile[lang];
+		}
+		let myPath = path.join(__dirname, "../translations/" + lang + '.json');
+		if (!fs.existsSync(myPath)) {
+			console.log("Language file not exists!!", lang);
+			this.currLang = "en";
+			myPath = path.join(__dirname, "../translations/en.json");
+		}
+		this.langFile[lang] = JSON.parse(fs.readFileSync(myPath), 'utf8');
+		return this.langFile[lang];
+	}
+
+	__(phrase, arr) {
+		let translation = this.langFile[this.currLang][phrase]
+		if (translation === undefined) {
+			translation = phrase
+		}
+		let index = 0;
+		while (translation.indexOf('{{') > 0) {
+			translation = translation.replace(/{{([^}]+)}}/, arr[index++] || "$1");
+		}
+		return translation
 	}
 
 	createMainWindow() {

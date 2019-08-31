@@ -20,14 +20,14 @@
                 class="download-btn"
                 v-if="selectFileList.length != 0"
                 @click="downloadAllFiles()"
-            >Download</div>
+            >{{ l.DOWNLOAD }}</div>
             <div class="username" :class="isShowLogout ? 'active' :''" id="logout">
                 <p @click="toggleLogout()">
                     {{ loginInfo.username }}
                     <em></em>
                 </p>
                 <div class="layout-box" @click="toggleLogout()">
-                    <span class="label" @click="logout()">Logout</span>
+                    <span class="label" @click="logout()">{{ l.LOGOUT }}</span>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                     <span class="connect-circle">
                         <em></em>
                     </span>
-                    连接正常
+                    {{ l.CONNECTED }}
                 </div>
             </div>
             <div class="right-box">
@@ -72,9 +72,9 @@
                             @click="toggleAllSelect()"
                             :class="isAllSelect ? 'select' : ''"
                         ></div>
-                        <div class="fl file-name nobackground">File name</div>
-                        <div class="fl file-size">Size</div>
-                        <div class="fl file-time">Recent editing time</div>
+                        <div class="fl file-name nobackground">{{ l.FILENAME }}</div>
+                        <div class="fl file-size">{{ l.SIZE }}</div>
+                        <div class="fl file-time">{{ l.TIME }}</div>
                     </div>
                     <ul>
                         <li
@@ -91,7 +91,7 @@
                                         v-if="file.thumbnail"
                                         v-bind:src="file.thumbnail"
                                         @error="handleError(file)"
-                                    >
+                                    />
                                 </div>
                                 <a
                                     href="javascript:void(0)"
@@ -154,7 +154,18 @@ export default {
             isShowLogout: false,
             isAllSelect: false,
             currPathList: [],
-            disk: {}
+            disk: {},
+            l: {
+                TIME: "",
+                LOGOUT: "",
+                FILENAME: "",
+                DOWNLOAD: "",
+                CONNECTED: "",
+                SIZE: "",
+
+                DOWNLOADSUCCESS: "",
+                CREATETASKSUCCEED: ""
+            }
         };
     },
     filters: {
@@ -187,19 +198,34 @@ export default {
     },
     computed: {
         isShowToast() {
-            common.log(this);
             return this.$store.state.Counter.isShowToast;
         },
         toastText() {
             return this.$store.state.Counter.toastText;
         }
     },
+    created() {
+        this.toggleLanguage();
+    },
     mounted() {
         this.initGlobalInfo();
         this.initSamba();
         this.init();
+
+        ipcRenderer.on("lang-changed", (event, lang) => {
+            console.log("Lang changed to " + JSON.stringify(lang));
+            this.toggleLanguage();
+        });
     },
     methods: {
+        toggleLanguage() {
+            //获取语言文件
+            let lang = ipcRenderer.sendSync("get-lang");
+            for (let i in this.l) {
+                this.l[i] = lang[i];
+                console.log(i, this.l[i]);
+            }
+        },
         initGlobalInfo() {
             this.box = ipcRenderer.sendSync("get-global", "box");
             this.userInfo = ipcRenderer.sendSync("get-global", "userInfo");
@@ -221,6 +247,7 @@ export default {
                     }
                 )
                 .then(res => {
+                    console.log("succeed to get smb config....");
                     if (res.err_no == 0) {
                         this.smbConfig = {
                             share: "\\\\" + boxIp + "\\" + res.tag,
@@ -231,9 +258,12 @@ export default {
                             // username: this.loginInfo.username,
                             // password: this.loginInfo.password,
                         };
+                        console.log("Connect to smb...");
                         this.reConnectSamba();
-
-                        this.renderDisks();
+                        setTimeout(() => {
+                            console.log("Start to get disk info");
+                            this.renderDisks();
+                        }, 300);
                     }
                 });
         },
@@ -249,7 +279,7 @@ export default {
             this.toggleAllSelect(0);
             if (isShowToast) {
                 common.createToast(
-                    "已经成功创建下载任务至" +
+                    this.l.CREATETASKSUCCEED +
                         ipcRenderer.sendSync("get-global", "downloadPath")
                 );
             }
@@ -266,11 +296,11 @@ export default {
             });
         },
         downloadFile(remotePath, localPath, callback, errorCallback, options) {
-            common.log(`从${remotePath}下载文件到${localPath}`);
+            common.log(`Download ${remotePath} to ${localPath}`);
             options = options || {};
             if (options.toast) {
                 common.createToast(
-                    "已创建下载任务至" +
+                    this.l.CREATETASKSUCCEED +
                         ipcRenderer.sendSync("get-global", "downloadPath")
                 );
             }
@@ -283,13 +313,13 @@ export default {
                 }
                 var writeStream = fs.createWriteStream(localPath + ".tmp");
                 writeStream.on("finish", function() {
-                    common.log("文件下载完毕....");
+                    common.log("File download successfully event....");
                     //重命名
                     fs.renameSync(localPath + ".tmp", localPath);
                     callback && callback();
                 });
                 writeStream.on("error", function() {
-                    common.log("文件下载失败....");
+                    common.log("File download failed event....");
                     errorCallback && errorCallback();
                 });
                 readStream.pipe(writeStream);
@@ -302,11 +332,11 @@ export default {
             let diskCount = 0;
             this.boxIp = boxIp;
             this.boxPort = boxPort || 37867;
-            common.log("盒子ip:" + boxIp + ",盒子端口：" + boxPort);
+            common.log("Box ip:" + boxIp + ",port:" + boxPort);
             this.reConnectSamba();
             this.smb2Client.readdir("", (err, content) => {
                 if (err) {
-                    console.log("samba读取错误");
+                    console.log("Samba error....");
                     this.smb2Client.disconnect();
                     this.smb2Client = new SMB2(this.smbConfig);
                     setTimeout(() => {
@@ -317,7 +347,7 @@ export default {
                 if (!content || !content.length) {
                     return false;
                 }
-                console.log("开始获取磁盘状态....");
+                console.log("Start to get disk status....");
                 this.currPath = content[0].Filename;
                 common
                     .post(
@@ -330,10 +360,9 @@ export default {
                     )
                     .then(res => {
                         if (res.err_no == 0) {
-                            console.log("获取磁盘状态成功.....");
                             let disks = [];
                             res.disks = res.disks || [];
-                            console.log("磁盘信息：" + JSON.stringify(content));
+                            console.log("Disk info:" + JSON.stringify(content));
                             res.disks.forEach(item => {
                                 let uuid = item.uuid.replace(/-/g, "");
                                 let cont = content.find(disk => {
@@ -358,17 +387,17 @@ export default {
                             });
                             if (disks[0]) {
                                 common.log(
-                                    "设置初始磁盘：" + JSON.stringify(disks[0])
+                                    "Set initial disk：" +
+                                        JSON.stringify(disks[0])
                                 );
                                 disks[0].isSelect = true;
                                 this.disk = disks[0];
                                 this.initCurrPath();
+                                this.renderFileList(disks[0].name);
                             }
                             this.disks = disks;
                         }
                     });
-
-                this.renderFileList(content[0].Filename);
             });
         },
         computeGB(size) {
@@ -391,13 +420,13 @@ export default {
             }
         },
         renderFileList(folder, isInitPath = false) {
-            common.log("查询目录-----：" + folder);
+            common.log("Check folder-----：" + folder);
             this.reConnectSamba();
             let self = this;
             try {
                 this.smb2Client.readdir(folder, (err, content) => {
+                    console.log("Smb return....", err, content);
                     if (err) {
-                        console.log("aaaaaaa");
                         this.smb2Client.disconnect();
                         this.smb2Client = new SMB2(this.smbConfig);
                         // this.renderFileList(folder);
@@ -458,7 +487,7 @@ export default {
             }
         },
         getThumbnail(folder, list) {
-            common.log("获取以下缩略图：", folder);
+            common.log("Get thumbnail in folder:", folder);
             let regularFolder = folder.replace(/\\/g, "/");
             let uuid = regularFolder.replace(/^([^/]+)\/.+$/, "$1");
             let subFolder = regularFolder.replace(uuid, "");
@@ -490,7 +519,7 @@ export default {
                             let fileExists = fs.existsSync(localPath);
                             // common.log("文件是否存在？" + fileExists + "," + localPath);
                             if (fileExists) {
-                                common.log("缩略图本地已存在：" + localPath);
+                                common.log("Thumbnail exists:" + localPath);
                                 item.thumbnail = "file://" + localPath;
                                 self.fileList = self.fileList.slice();
                             } else {
@@ -513,7 +542,6 @@ export default {
             }
         },
         downloadThumbnail(params, item, opt) {
-            console.log("下载参数", params);
             let self = this;
             let options = {
                 hostname: self.boxIp,
@@ -547,7 +575,7 @@ export default {
                                 contentLength
                         );
                     }
-                    common.log("文件下载完成：", opt.localPath);
+                    common.log("Succeed to download file:", opt.localPath);
                     //重命名
                     fs.renameSync(opt.localFullPath, opt.localPath);
                     item.thumbnail = "file://" + opt.localPath;
@@ -743,9 +771,6 @@ export default {
             if (this.currPathList.length >= 2) {
                 let path = this.currPathList[this.currPathList.length - 2];
                 this.navBackList.push(this.currPath);
-                console.log(
-                    "返回---填充navBackList:" + this.navBackList.length
-                );
                 console.log(this.currPath);
                 this.changePath(path);
             }
@@ -753,7 +778,6 @@ export default {
         goNext() {
             if (this.navBackList.length > 0) {
                 let path = this.navBackList.pop();
-                console.log("进入下一级目录：" + path);
                 this.renderFileList(path);
                 //重新计算this.currPath，这个用于请求
                 this.currPath = path;
@@ -774,8 +798,6 @@ export default {
             });
         },
         handleError(item) {
-            console.log("获取缩略图失败...");
-
             if (item.thumbnail) {
                 let localPath = item.thumbnail.replace(/^file:\/\//, "");
                 let fileExists = fs.existsSync(localPath);

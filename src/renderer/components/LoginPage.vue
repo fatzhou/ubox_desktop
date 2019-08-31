@@ -2,31 +2,33 @@
     <div class="main-box">
         <div class="right-box">
             <div class="content-box">
-                <p class="title">Login</p>
-                <p class="title-des">Beyond blockchain</p>
-                <p class="title-des">open the gate to the decentralized future</p>
+                <p class="title">{{ l.LOGIN }}</p>
+                <p class="title-des">{{ l.SLOGAN1 }}</p>
+                <p class="title-des">{{ l.SLOGAN2 }}</p>
                 <label for="username" class="form-input mar-btm-20 mar-top-45">
                     <input
                         type="text"
-                        value="1@qq.com"
+                        :placeholder="userPlaceholder"
                         id="username"
                         :class="usernameInputClass"
                         v-on:blur="testUsername()"
+                        @focus="usernameFocus"
                         v-on:input="usernameChange"
                         v-model="username"
-                    >
-                    <span class="label" id="username-wrap" :class="usernameActive">Email</span>
+                    />
+                    <span class="label" id="username-wrap" :class="usernameActive">{{ l.EMAIL }}</span>
                 </label>
                 <label for="password" class="form-input">
                     <input
+                        :placeholder="passwordPlaceholder"
                         type="password"
-                        value="A123456789"
                         id="password"
-                        v-on:input="passwordChange"
+                        @focus="passwordFocus"
+                        v-on:blur="passwordBlur"
                         v-model="password"
                         @keyup.enter="submitForm"
-                    >
-                    <span class="label" id="password-wrap" :class="passwordActive">Password</span>
+                    />
+                    <span class="label" id="password-wrap" :class="passwordActive">{{ l.PASSWORD }}</span>
                 </label>
                 <div
                     class="login-btn"
@@ -34,7 +36,8 @@
                     :class="clickSubmitClass"
                     v-on:click="submitForm()"
                 >
-                    <span class="loading"></span>Log in
+                    <span class="loading"></span>
+                    {{ l.LOGINBTN }}
                 </div>
             </div>
         </div>
@@ -58,16 +61,32 @@ export default {
         return {
             boxIp: "",
             boxPort: "",
-            //   username: "",
-            //   password: "",
-            username: "1@qq.com",
-            password: "A123456789",
-            // username: "619912987@qq.com",
-            // password: "dh5819413",
+            // username: "",
+            // password: "",
+            // username: "1@qq.com",
+            // password: "A123456789",
+            username: "testv314@online.com",
+            password: "a12345678",
             usernameActive: "",
             passwordActive: "",
+            userPlaceholder: "",
+            passwordPlaceholder: "",
             usernameInputClass: "",
-            clickSubmitClass: "hide-load"
+            clickSubmitClass: "hide-load",
+            l: {
+                LOGIN: "",
+                SLOGAN1: "",
+                SLOGAN2: "",
+                EMAIL: "",
+                PASSWORD: "",
+                LOGINBTN: "",
+                USERNAMEHOLDER: "",
+                PASSWORDHOLDER: "",
+                NOUSERNAME: "",
+                NOPASSWORD: "",
+                NODEVICE: "",
+                NETWORKERROR: ""
+            }
         };
     },
     computed: {
@@ -78,6 +97,9 @@ export default {
             return this.$store.state.Counter.toastText;
         }
     },
+    created() {
+        this.toggleLanguage();
+    },
     mounted() {
         if (this.username.length > 0) {
             this.usernameActive = "active";
@@ -85,20 +107,37 @@ export default {
         if (this.password.length > 0) {
             this.passwordActive = "active";
         }
-        this.$store.commit('updateToastStatus', {
+        this.$store.commit("updateToastStatus", {
             isShowToast: false,
-            toastText: ''
+            toastText: ""
+        });
+        ipcRenderer.on("lang-changed", (event, lang) => {
+            console.log("Lang changed to " + JSON.stringify(lang));
+            this.toggleLanguage();
         });
     },
     methods: {
+        toggleLanguage() {
+            //获取语言文件
+            let lang = ipcRenderer.sendSync("get-lang");
+            for (let i in this.l) {
+                this.l[i] = lang[i];
+            }
+        },
         usernameChange() {
             if (this.username.length > 0) {
                 this.usernameActive = "active";
             } else {
+                console.log("3333");
                 this.usernameActive = "";
             }
         },
+        usernameFocus() {
+            this.userPlaceholder = this.l.USERNAMEHOLDER;
+        },
         testUsername() {
+            this.userPlaceholder = "";
+
             if (this.username.length > 0) {
                 let rep = /([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})/;
                 if (rep.test(this.username)) {
@@ -118,11 +157,25 @@ export default {
                 this.passwordActive = "";
             }
         },
-
+        passwordFocus() {
+            this.passwordPlaceholder = this.l.PASSWORDHOLDER;
+        },
+        passwordBlur() {
+            this.passwordPlaceholder = "";
+        },
         submitForm() {
-            common.log("即将登录.....");
+            if (!this.username) {
+                common.createToast(this.l.NOUSERNAME);
+                return false;
+            }
+
+            if (!this.password) {
+                common.createToast(this.l.NOPASSWORD);
+                return false;
+            }
+            common.log("Start to login.....");
             if (this.clickSubmitClass.indexOf("hide-load") < 0) {
-                common.log("正在提交.......");
+                common.log("Commiting.......");
                 //正在提交中，防止重复提交
                 return false;
             }
@@ -133,7 +186,7 @@ export default {
             //提交数据
             let username = this.username,
                 password = this.password;
-            common.log("登录用户名：" + username + ",登录密码：" + password);
+            common.log("Username:" + username + ",Password: " + password);
             // ipcRenderer.send('login', username, password);
 
             //开始获取盒子git s
@@ -141,7 +194,7 @@ export default {
             return common
                 .discovery(unameHash)
                 .then(device => {
-                    common.log("搜索到盒子：" + JSON.stringify(device));
+                    common.log("Get box: " + JSON.stringify(device));
                     if (device) {
                         ipcRenderer.send("update-global", "box", device);
                         //解析盒子ip和端口
@@ -159,7 +212,7 @@ export default {
                             })
                             .then(res => {
                                 common.log(
-                                    "登录成功.....，开始获取用户信息......."
+                                    "Login successfully, get user info...."
                                 );
 
                                 if (res.err_no == 0) {
@@ -185,7 +238,7 @@ export default {
 
                                             if (res.err_no == 0) {
                                                 common.log(
-                                                    "获取用户信息成功.....",
+                                                    "Get user info succesfuly.....",
                                                     res.data
                                                 );
                                                 //登录完毕，通知mainWindow跳转
@@ -202,17 +255,13 @@ export default {
                     }
                 })
                 .catch(e => {
-                    common.log("登录失败.....", e);
+                    common.log("Failed to login.....", e);
                     setTimeout(() => {
                         this.clickSubmitClass = "hide-load";
                         if (!e) {
-                            common.createToast(
-                                "Your binding device is not online. Please check the network and power status"
-                            );
+                            common.createToast(this.l.NODEVICE);
                         } else if (!e.err_no) {
-                            common.createToast(
-                                "Network connection failed, please check."
-                            );
+                            common.createToast(this.l.NETWORKERROR);
                         }
                     }, 101);
                 });
